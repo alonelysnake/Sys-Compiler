@@ -25,7 +25,7 @@ public class Compiler {
         }
         
         Lexer lexer = new Lexer(input.toString());
-        ArrayList<Token> tokens = lexer.tuckle();
+        ArrayList<Token> tokens = lexer.tackle();
         String outputFile = "output.txt";
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));

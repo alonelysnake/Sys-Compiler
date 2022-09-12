@@ -87,6 +87,7 @@ public class Lexer {
     }
     
     private Token createToken() {
+        int line = this.cursor.getLine();
         TokenCategory type = getTokenType();
         //TODO 报错返回
         if (type == null) {
@@ -97,9 +98,9 @@ public class Lexer {
         } else if (type == TokenCategory.INTCONST ||
                 type == TokenCategory.IDENT ||
                 type == TokenCategory.FORMATSTRING) {
-            return new Token(type, this.curStr);
+            return new Token(type, this.curStr, line);
         } else {
-            return new Token(type, type.getRealCode());
+            return new Token(type, type.getRealCode(), line);
         }
     }
     
@@ -199,13 +200,14 @@ public class Lexer {
         }
     }
     
-    public ArrayList<Token> tuckle() {
+    public ArrayList<Token> tackle() {
         ArrayList<Token> ret = new ArrayList<>();
         while (!cursor.isEOF()) {
             skipBlank();
             if (!cursor.isEOF()) {
                 Token token = createToken();
                 if (token != null) {
+                    //不是注释
                     ret.add(token);
                 }
             }
