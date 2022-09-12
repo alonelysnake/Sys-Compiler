@@ -1,4 +1,4 @@
-package lexer;
+package lexer.token;
 
 import java.util.Collections;
 import java.util.HashMap;

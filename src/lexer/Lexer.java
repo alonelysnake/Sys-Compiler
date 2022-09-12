@@ -1,5 +1,11 @@
 package lexer;
 
+import lexer.token.FormatString;
+import lexer.token.Ident;
+import lexer.token.IntConst;
+import lexer.token.Token;
+import lexer.token.TokenCategory;
+
 import java.util.ArrayList;
 
 public class Lexer {
@@ -93,14 +99,17 @@ public class Lexer {
         if (type == null) {
             return null;
         }
-        if (type == TokenCategory.COMMENT) {
-            return null;
-        } else if (type == TokenCategory.INTCONST ||
-                type == TokenCategory.IDENT ||
-                type == TokenCategory.FORMATSTRING) {
-            return new Token(type, this.curStr, line);
-        } else {
-            return new Token(type, type.getRealCode(), line);
+        switch (type) {
+            case COMMENT:
+                return null;
+            case INTCONST:
+                return new IntConst(this.curStr, line);
+            case IDENT:
+                return new Ident(this.curStr, line);
+            case FORMATSTRING:
+                return new FormatString(this.curStr, line);
+            default:
+                return new Token(type, type.getRealCode(), line);
         }
     }
     

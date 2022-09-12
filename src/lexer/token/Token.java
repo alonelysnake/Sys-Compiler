@@ -1,4 +1,4 @@
-package lexer;
+package lexer.token;
 
 public class Token {
     private TokenCategory type;
