@@ -13,6 +13,7 @@ public class Token {
     @Override
     public String toString() {
         //TODO 不同种类的符号不同输出
-        return TokenCategory.TOKEN2CODE.get(this.type) + " " + name;
+        return type.getCategoryCode() + " " + name;
+        //return TokenCategory.TOKEN2CODE.get(this.type) + " " + name;
     }
 }

@@ -88,17 +88,22 @@ public class Lexer {
     
     private Token createToken() {
         TokenCategory type = getTokenType();
+        //TODO 报错返回
+        if (type == null) {
+            return null;
+        }
         if (type == TokenCategory.COMMENT) {
             return null;
-        } else if (TokenCategory.TOKEN2STR.containsKey(type)) {
-            return new Token(type, TokenCategory.TOKEN2STR.get(type));
-        } else {
+        } else if (type == TokenCategory.INTCONST ||
+                type == TokenCategory.IDENT ||
+                type == TokenCategory.FORMATSTRING) {
             return new Token(type, this.curStr);
+        } else {
+            return new Token(type, type.getRealCode());
         }
     }
     
     private TokenCategory getTokenType() {
-        TokenCategory type;
         char first = cursor.getCur();
         cursor.next();//skip first char
         switch (first) {
