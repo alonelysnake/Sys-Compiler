@@ -33,7 +33,6 @@ public class Lexer {
     
     //跳过多行注释
     private void skipBlock() {
-        cursor.next();//skip '/'
         cursor.next();//skip '*'
         while (cursor.hasNext() && (cursor.getCur() != '*' || cursor.getNext() != '/')) {
             cursor.next();
