@@ -12,9 +12,12 @@ public class Token {
         this.line = line;
     }
     
+    public TokenCategory getType() {
+        return type;
+    }
+    
     @Override
     public String toString() {
-        //TODO 不同种类的符号不同输出
-        return type.getCategoryCode() + " " + name;
+        return type.getCategoryCode() + " " + name + "\n";
     }
 }

@@ -15,7 +15,7 @@ public class FileIO {
     public static String readFile(String filepath) {
         StringBuilder ans = new StringBuilder();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(filepath));//构造一个BufferedReader类来读取文件
+            BufferedReader br = new BufferedReader(new FileReader(filepath));
             String s = null;
             while ((s = br.readLine()) != null) {
                 ans.append(s);
@@ -32,7 +32,7 @@ public class FileIO {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
             for (Token token : tokens) {
-                bw.write(token.toString() + "\n");
+                bw.write(token.toString());
             }
             bw.close();
         } catch (IOException e) {
