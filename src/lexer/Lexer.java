@@ -6,7 +6,7 @@ import lexer.token.IntConst;
 import lexer.token.Token;
 import lexer.token.TokenCategory;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Lexer {
     private Cursor cursor;
@@ -208,15 +208,15 @@ public class Lexer {
         }
     }
     
-    public ArrayList<Token> tackle() {
-        ArrayList<Token> ret = new ArrayList<>();
+    public LinkedList<Token> tackle() {
+        LinkedList<Token> ret = new LinkedList<>();
         while (!cursor.isEOF()) {
             skipBlank();
             if (!cursor.isEOF()) {
                 Token token = createToken();
                 if (token != null) {
                     //不是注释
-                    ret.add(token);
+                    ret.addLast(token);
                 }
             }
         }

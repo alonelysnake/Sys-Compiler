@@ -1,11 +1,12 @@
 import lexer.token.Token;
+import syntax.CompUnit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class FileIO {
     /**
@@ -28,12 +29,22 @@ public class FileIO {
         return ans.toString();
     }
     
-    public static void writeLexer(String filepath, ArrayList<Token> tokens) {
+    public static void writeLexer(String filepath, LinkedList<Token> tokens) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
             for (Token token : tokens) {
                 bw.write(token.toString());
             }
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void writeParser(String filepath, CompUnit compUnit) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
+            bw.write(compUnit.toString());
             bw.close();
         } catch (IOException e) {
             e.printStackTrace();
