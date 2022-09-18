@@ -8,15 +8,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 public class OutputStmt extends SingleStmt {
-    private Token printf;
-    private Token leftParent;
-    private FormatString str;
-    private LinkedList<Token> commas;
-    private LinkedList<Exp> paras;
-    private Token rightParent;
+    private final Token printf;
+    private final Token leftParent;
+    private final FormatString str;
+    private final LinkedList<Token> commas;
+    private final LinkedList<Exp> paras;
+    private final Token rightParent;
     
     public OutputStmt(Token printf, Token leftParent, FormatString str,
-                      LinkedList<Token> commas, LinkedList<Exp> paras, Token rightParent, Token semicolon) {
+                      LinkedList<Token> commas, LinkedList<Exp> paras,
+                      Token rightParent, Token semicolon) {
         super(semicolon);
         this.printf = printf;
         this.leftParent = leftParent;

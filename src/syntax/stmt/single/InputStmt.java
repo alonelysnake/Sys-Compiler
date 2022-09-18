@@ -4,13 +4,14 @@ import lexer.token.Token;
 import syntax.exp.unary.LVal;
 
 public class InputStmt extends SingleStmt {
-    private LVal lVal;
-    private Token assign;
-    private Token name;
-    private Token leftParent;
-    private Token rightParent;
+    private final LVal lVal;
+    private final Token assign;
+    private final Token name;
+    private final Token leftParent;
+    private final Token rightParent;
     
-    public InputStmt(LVal lVal, Token assign, Token name, Token leftParent, Token rightParent, Token semicolon) {
+    public InputStmt(LVal lVal, Token assign,
+                     Token name, Token leftParent, Token rightParent, Token semicolon) {
         super(semicolon);
         this.lVal = lVal;
         this.assign = assign;

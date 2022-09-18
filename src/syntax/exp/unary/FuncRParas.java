@@ -11,8 +11,8 @@ public class FuncRParas {
      * exp1 + ',' + exp2 + ...
      */
     
-    private LinkedList<Exp> paras;
-    private LinkedList<Token> commas;
+    private final LinkedList<Exp> paras;
+    private final LinkedList<Token> commas;
     
     public FuncRParas(LinkedList<Exp> paras, LinkedList<Token> commas) {
         this.paras = paras;

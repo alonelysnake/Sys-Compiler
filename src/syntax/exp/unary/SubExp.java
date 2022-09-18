@@ -8,9 +8,9 @@ public class SubExp implements PrimaryUnit {
      * '(' + exp + ')'
      */
     
-    private Token leftParent;
-    private Exp exp;
-    private Token rightParent;
+    private final Token leftParent;
+    private final Exp exp;
+    private final Token rightParent;
     
     public SubExp(Token leftParent, Exp exp, Token rightParent) {
         this.leftParent = leftParent;

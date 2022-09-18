@@ -9,10 +9,10 @@ public class FuncCall implements ExpUnit {
      * Ident + '(' + {Paras} + ')'
      */
     
-    private Ident name;
-    private Token leftParent;
-    private FuncRParas paras;
-    private Token rightParent;
+    private final Ident name;
+    private final Token leftParent;
+    private final FuncRParas paras;
+    private final Token rightParent;
     
     public FuncCall(Ident name, Token leftParent, FuncRParas paras, Token rightParent) {
         this.name = name;
@@ -24,6 +24,7 @@ public class FuncCall implements ExpUnit {
     public FuncCall(Ident name, Token leftParent, Token rightParent) {
         this.name = name;
         this.leftParent = leftParent;
+        this.paras = null;
         this.rightParent = rightParent;
     }
     

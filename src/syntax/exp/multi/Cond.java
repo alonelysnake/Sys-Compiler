@@ -1,7 +1,7 @@
 package syntax.exp.multi;
 
 public class Cond {
-    private LOrExp exp;
+    private final LOrExp exp;
     
     public Cond(LOrExp exp) {
         this.exp = exp;

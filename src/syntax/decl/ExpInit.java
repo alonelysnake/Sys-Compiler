@@ -3,8 +3,8 @@ package syntax.decl;
 import syntax.exp.multi.Exp;
 
 public class ExpInit implements InitVal {
-    private boolean constFlag;
-    private Exp exp;
+    private final boolean constFlag;
+    private final Exp exp;
     
     public ExpInit(boolean constFlag, Exp exp) {
         this.constFlag = constFlag;

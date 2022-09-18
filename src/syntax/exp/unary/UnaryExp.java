@@ -5,8 +5,8 @@ import lexer.token.Token;
 import java.util.LinkedList;
 
 public class UnaryExp {
-    private ExpUnit unit;
-    private LinkedList<Token> ops;
+    private final ExpUnit unit;
+    private final LinkedList<Token> ops;
     
     public UnaryExp(ExpUnit unit, LinkedList<Token> ops) {
         this.unit = unit;

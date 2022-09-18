@@ -7,11 +7,11 @@ import syntax.exp.unary.Dimension;
 import java.util.LinkedList;
 
 public class FuncFParam {
-    private Token type;//固定为int
-    private Ident name;
+    private final Token type;//固定为int
+    private final Ident name;
     
-    private Dimension firstDimension;
-    private LinkedList<Dimension> followDimensions;
+    private final Dimension firstDimension;
+    private final LinkedList<Dimension> followDimensions;
     
     public FuncFParam(Token type, Ident name) {
         this.type = type;
@@ -27,7 +27,8 @@ public class FuncFParam {
         this.followDimensions = null;
     }
     
-    public FuncFParam(Token type, Ident name, Dimension firstDimension, LinkedList<Dimension> followDimensions) {
+    public FuncFParam(Token type, Ident name,
+                      Dimension firstDimension, LinkedList<Dimension> followDimensions) {
         this.type = type;
         this.name = name;
         this.firstDimension = firstDimension;

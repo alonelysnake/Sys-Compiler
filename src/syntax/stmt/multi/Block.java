@@ -6,9 +6,9 @@ import syntax.BlockItem;
 import java.util.LinkedList;
 
 public class Block implements MultiStmt {
-    private Token leftBrace;
-    private LinkedList<BlockItem> items;
-    private Token rightBrace;
+    private final Token leftBrace;
+    private final LinkedList<BlockItem> items;
+    private final Token rightBrace;
     
     public Block(Token leftBrace, LinkedList<BlockItem> items, Token rightBrace) {
         this.leftBrace = leftBrace;

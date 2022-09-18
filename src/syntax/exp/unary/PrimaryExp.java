@@ -1,7 +1,7 @@
 package syntax.exp.unary;
 
 public class PrimaryExp implements ExpUnit {
-    private PrimaryUnit unit;
+    private final PrimaryUnit unit;
     
     public PrimaryExp(PrimaryUnit unit) {
         this.unit = unit;

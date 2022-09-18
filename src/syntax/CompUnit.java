@@ -7,9 +7,9 @@ import syntax.func.MainFunc;
 import java.util.LinkedList;
 
 public class CompUnit {
-    private LinkedList<Decl> globals;
-    private LinkedList<FuncDef> funcs;
-    private MainFunc mainFunc;
+    private final LinkedList<Decl> globals;
+    private final LinkedList<FuncDef> funcs;
+    private final MainFunc mainFunc;
     
     public CompUnit(LinkedList<Decl> globals, LinkedList<FuncDef> funcs, MainFunc mainFunc) {
         this.globals = globals;

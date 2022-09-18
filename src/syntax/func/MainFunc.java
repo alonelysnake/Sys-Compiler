@@ -4,13 +4,14 @@ import lexer.token.Token;
 import syntax.stmt.multi.Block;
 
 public class MainFunc {
-    private Token intSym;
-    private Token mainSym;
-    private Token leftParent;
-    private Token rightParent;
-    private Block content;
+    private final Token intSym;
+    private final Token mainSym;
+    private final Token leftParent;
+    private final Token rightParent;
+    private final Block content;
     
-    public MainFunc(Token intSym, Token mainSym, Token leftParent, Token rightParent, Block content) {
+    public MainFunc(Token intSym, Token mainSym, Token leftParent, Token rightParent,
+                    Block content) {
         this.intSym = intSym;
         this.mainSym = mainSym;
         this.leftParent = leftParent;

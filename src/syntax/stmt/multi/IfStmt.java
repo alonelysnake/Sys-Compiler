@@ -5,9 +5,9 @@ import syntax.exp.multi.Cond;
 import syntax.stmt.Stmt;
 
 public class IfStmt extends JudgeStmt {
-    private Token ifSym;
-    private Token elseSym;
-    private Stmt elseStmt;
+    private final Token ifSym;
+    private final Token elseSym;
+    private final Stmt elseStmt;
     
     public IfStmt(Token ifSym, Token leftParent, Cond condExp, Token rightParent, Stmt mainStmt,
                   Token elseSym, Stmt elseStmt) {

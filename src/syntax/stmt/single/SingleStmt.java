@@ -7,7 +7,7 @@ public class SingleStmt implements BlockItem {
     /**
      * 所有单行语句，都一定含有semicolon
      */
-    private Token semicolon;
+    private final Token semicolon;
     
     public SingleStmt(Token semicolon) {
         this.semicolon = semicolon;

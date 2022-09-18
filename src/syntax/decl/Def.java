@@ -7,13 +7,13 @@ import syntax.exp.unary.Dimension;
 import java.util.LinkedList;
 
 public class Def {
-    private Ident name;
-    private LinkedList<Dimension> dimensions;
+    private final Ident name;
+    private final LinkedList<Dimension> dimensions;
     
-    private Token assign;
-    private InitVal val;
+    private final Token assign;
+    private final InitVal val;
     
-    private boolean constFlag;
+    private final boolean constFlag;
     
     //无初值的定义
     public Def(Ident name, LinkedList<Dimension> dimensions) {
@@ -25,7 +25,8 @@ public class Def {
     }
     
     //有初值的定义
-    public Def(Ident name, LinkedList<Dimension> dimensions, Token assign, InitVal val, boolean constFlag) {
+    public Def(Ident name, LinkedList<Dimension> dimensions,
+               Token assign, InitVal val, boolean constFlag) {
         this.name = name;
         this.dimensions = dimensions;
         this.assign = assign;

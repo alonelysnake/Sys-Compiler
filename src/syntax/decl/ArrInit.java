@@ -6,13 +6,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 public class ArrInit implements InitVal {
-    private boolean constFlag;
-    private Token leftBrace;
-    private LinkedList<InitVal> vals;
-    private LinkedList<Token> commas;
-    private Token rightBrace;
+    private final boolean constFlag;
+    private final Token leftBrace;
+    private final LinkedList<InitVal> vals;
+    private final LinkedList<Token> commas;
+    private final Token rightBrace;
     
-    public ArrInit(boolean constFlag, Token leftBrace, LinkedList<InitVal> vals, LinkedList<Token> commas, Token rightBrace) {
+    public ArrInit(boolean constFlag, Token leftBrace, LinkedList<InitVal> vals,
+                   LinkedList<Token> commas, Token rightBrace) {
         this.constFlag = constFlag;
         this.leftBrace = leftBrace;
         this.vals = vals;
@@ -41,6 +42,7 @@ public class ArrInit implements InitVal {
         if (vals != null) {
             Iterator<InitVal> valIterator = vals.iterator();
             sb.append(valIterator.next());
+            assert commas != null;
             Iterator<Token> commaIterator = commas.iterator();
             while (valIterator.hasNext()) {
                 sb.append(commaIterator.next());

@@ -7,14 +7,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Decl implements BlockItem {
-    private Token constSym;
-    private Token type;
-    private LinkedList<Token> commas;
-    private LinkedList<Def> defs;
-    private Token semicolon;
+    private final Token constSym;
+    private final Token type;
+    private final LinkedList<Token> commas;
+    private final LinkedList<Def> defs;
+    private final Token semicolon;
     
     //常量声明
-    public Decl(Token constSym, Token type, LinkedList<Token> commas, LinkedList<Def> defs, Token semicolon) {
+    public Decl(Token constSym, Token type,
+                LinkedList<Token> commas, LinkedList<Def> defs, Token semicolon) {
         this.constSym = constSym;
         this.type = type;
         this.commas = commas;

@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 public class FuncFParams {
-    private LinkedList<Token> commas;
-    private LinkedList<FuncFParam> paras;
+    private final LinkedList<Token> commas;
+    private final LinkedList<FuncFParam> paras;
     
     public FuncFParams(LinkedList<Token> commas, LinkedList<FuncFParam> paras) {
         this.commas = commas;

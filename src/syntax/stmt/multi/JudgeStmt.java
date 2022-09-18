@@ -5,10 +5,10 @@ import syntax.exp.multi.Cond;
 import syntax.stmt.Stmt;
 
 public class JudgeStmt implements MultiStmt {
-    private Token laftParent;
-    private Cond condExp;
-    private Token rightParent;
-    private Stmt mainStmt;
+    private final Token laftParent;
+    private final Cond condExp;
+    private final Token rightParent;
+    private final Stmt mainStmt;
     
     public JudgeStmt(Token laftParent, Cond condExp, Token rightParent, Stmt mainStmt) {
         this.laftParent = laftParent;

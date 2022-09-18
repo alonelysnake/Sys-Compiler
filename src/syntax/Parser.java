@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 public class Parser {
-    private ListIterator<Token> tokenIterator;
+    private final ListIterator<Token> tokenIterator;
     
     public Parser(LinkedList<Token> tokens) {
         //iterator全部为浅拷贝，可以实现共同步进，不再需要一个global的变量

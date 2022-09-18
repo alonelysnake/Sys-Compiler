@@ -5,15 +5,16 @@ import lexer.token.Token;
 import syntax.stmt.multi.Block;
 
 public class FuncDef {
-    private FuncType returnType;
-    private Ident name;
-    private Token leftParent;
-    private FuncFParams params;
-    private Token rightParent;
-    private Block content;
+    private final FuncType returnType;
+    private final Ident name;
+    private final Token leftParent;
+    private final FuncFParams params;
+    private final Token rightParent;
+    private final Block content;
     
     //有参函数
-    public FuncDef(Token type, Ident name, Token leftParent, FuncFParams params, Token rightParent, Block content) {
+    public FuncDef(Token type, Ident name, Token leftParent, FuncFParams params, Token rightParent,
+                   Block content) {
         this.returnType = new FuncType(type);
         this.name = name;
         this.leftParent = leftParent;

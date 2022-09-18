@@ -10,8 +10,8 @@ public class LVal implements PrimaryUnit {
      * Ident + '[' + exp + ']'
      */
     
-    private Ident name;
-    private LinkedList<Dimension> dimensions;
+    private final Ident name;
+    private final LinkedList<Dimension> dimensions;
     
     public LVal(Ident name) {
         this.name = name;

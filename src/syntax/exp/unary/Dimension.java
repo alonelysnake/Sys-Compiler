@@ -8,9 +8,9 @@ public class Dimension {
      * 数组维度
      * '[' + exp/constexp + ']'
      */
-    private Token leftBracket;
-    private Exp exp;
-    private Token rightBracket;
+    private final Token leftBracket;
+    private final Exp exp;
+    private final Token rightBracket;
     
     public Dimension(Token leftBracket, Exp exp, Token rightBracket) {
         this.leftBracket = leftBracket;

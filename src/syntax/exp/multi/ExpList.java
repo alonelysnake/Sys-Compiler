@@ -9,9 +9,9 @@ public class ExpList<T> {
     /**
      * 存放表达式的容器
      */
-    private LinkedList<Token> ops;
-    private LinkedList<T> units;
-    private String className;
+    private final LinkedList<Token> ops;
+    private final LinkedList<T> units;
+    private final String className;
     
     public ExpList(LinkedList<Token> ops, LinkedList<T> units, String name) {
         this.ops = ops;

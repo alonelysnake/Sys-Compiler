@@ -5,9 +5,9 @@ import syntax.exp.multi.Exp;
 import syntax.exp.unary.LVal;
 
 public class AssignStmt extends SingleStmt {
-    private LVal lval;
-    private Token assign;
-    private Exp exp;
+    private final LVal lval;
+    private final Token assign;
+    private final Exp exp;
     
     public AssignStmt(LVal lval, Token assign, Exp exp, Token semicolon) {
         super(semicolon);

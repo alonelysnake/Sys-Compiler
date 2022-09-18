@@ -3,7 +3,7 @@ package syntax.exp.multi;
 import syntax.exp.unary.LVal;
 
 public class Exp {
-    private AddExp exp;
+    private final AddExp exp;
     
     public Exp(AddExp exp) {
         this.exp = exp;

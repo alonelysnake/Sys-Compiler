@@ -12,9 +12,9 @@ public class Stmt implements BlockItem {
         MULTI
     }
     
-    private SingleStmt single;
-    private MultiStmt multi;
-    private StmtType type;
+    private final SingleStmt single;
+    private final MultiStmt multi;
+    private final StmtType type;
     
     public Stmt(Token semicolon) {
         this.single = new SingleStmt(semicolon);

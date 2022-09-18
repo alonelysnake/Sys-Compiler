@@ -4,7 +4,7 @@ import lexer.token.Token;
 import syntax.exp.multi.Exp;
 
 public class ExpStmt extends SingleStmt {
-    private Exp exp;
+    private final Exp exp;
     
     public ExpStmt(Exp exp, Token semicolon) {
         super(semicolon);
