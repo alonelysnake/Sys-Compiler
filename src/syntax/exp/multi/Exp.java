@@ -1,6 +1,9 @@
 package syntax.exp.multi;
 
+import lexer.token.Ident;
 import syntax.exp.unary.LVal;
+
+import java.util.LinkedList;
 
 public class Exp {
     private final AddExp exp;
@@ -15,6 +18,10 @@ public class Exp {
     
     public LVal getLVal() {
         return exp.getLVal();
+    }
+    
+    public LinkedList<Ident> getNames() {
+        return exp.getNames();
     }
     
     @Override

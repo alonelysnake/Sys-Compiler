@@ -20,6 +20,10 @@ public class InputStmt extends SingleStmt {
         this.rightParent = rightParent;
     }
     
+    public LVal getlVal() {
+        return lVal;
+    }
+    
     @Override
     public String toString() {
         return lVal.toString() +

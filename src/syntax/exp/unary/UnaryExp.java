@@ -1,5 +1,6 @@
 package syntax.exp.unary;
 
+import lexer.token.Ident;
 import lexer.token.Token;
 
 import java.util.LinkedList;
@@ -18,6 +19,10 @@ public class UnaryExp {
             return ((PrimaryExp) unit).getLVal();
         }
         return null;
+    }
+    
+    public LinkedList<Ident> getNames() {
+        return unit.getNames();
     }
     
     @Override

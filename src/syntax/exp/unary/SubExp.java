@@ -1,7 +1,10 @@
 package syntax.exp.unary;
 
+import lexer.token.Ident;
 import lexer.token.Token;
 import syntax.exp.multi.Exp;
+
+import java.util.LinkedList;
 
 public class SubExp implements PrimaryUnit {
     /**
@@ -16,6 +19,14 @@ public class SubExp implements PrimaryUnit {
         this.leftParent = leftParent;
         this.exp = exp;
         this.rightParent = rightParent;
+    }
+    
+    public Exp getExp() {
+        return exp;
+    }
+    
+    public LinkedList<Ident> getNames() {
+        return exp.getNames();
     }
     
     @Override

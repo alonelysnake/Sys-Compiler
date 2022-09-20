@@ -33,6 +33,16 @@ public class FuncDef {
         this.content = content;
     }
     
+    //统计自定义函数名
+    public Ident getName() {
+        return name;
+    }
+    
+    //统计形参
+    public FuncFParams getParams() {
+        return params;
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

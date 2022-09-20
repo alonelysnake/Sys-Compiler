@@ -1,11 +1,12 @@
 package syntax.exp.multi;
 
+import lexer.token.Ident;
 import lexer.token.Token;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class ExpList<T> {
+public abstract class ExpList<T> {
     /**
      * 存放表达式的容器
      */
@@ -34,6 +35,12 @@ public class ExpList<T> {
     public T getFirst() {
         return units.getFirst();
     }
+    
+    public LinkedList<T> getUnits() {
+        return units;
+    }
+    
+    public abstract LinkedList<Ident> getNames();
     
     @Override
     public String toString() {

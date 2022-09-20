@@ -1,7 +1,10 @@
 package syntax.exp.unary;
 
+import lexer.token.Ident;
 import lexer.token.Token;
 import syntax.exp.multi.Exp;
+
+import java.util.LinkedList;
 
 public class Dimension {
     /**
@@ -22,6 +25,13 @@ public class Dimension {
         this.leftBracket = leftBracket;
         this.exp = null;
         this.rightBracket = rightBracket;
+    }
+    
+    public LinkedList<Ident> getNames() {
+        if (exp != null) {
+            return exp.getNames();
+        }
+        return new LinkedList<>();
     }
     
     @Override

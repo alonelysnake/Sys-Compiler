@@ -38,6 +38,10 @@ public class Def {
         return this.val != null;
     }
     
+    public Ident getName() {
+        return name;
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

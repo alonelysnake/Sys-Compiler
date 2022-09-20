@@ -1,5 +1,6 @@
 package syntax.exp.unary;
 
+import lexer.token.Ident;
 import lexer.token.Token;
 import syntax.exp.multi.Exp;
 
@@ -17,6 +18,12 @@ public class FuncRParas {
     public FuncRParas(LinkedList<Exp> paras, LinkedList<Token> commas) {
         this.paras = paras;
         this.commas = commas;
+    }
+    
+    public LinkedList<Ident> getNames() {
+        LinkedList<Ident> names = new LinkedList<>();
+        paras.forEach(para -> names.addAll(para.getNames()));
+        return names;
     }
     
     @Override

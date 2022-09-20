@@ -1,5 +1,6 @@
 package syntax.exp.multi;
 
+import lexer.token.Ident;
 import lexer.token.Token;
 import syntax.exp.unary.LVal;
 
@@ -15,5 +16,12 @@ public class AddExp extends ExpList<MulExp> {
             return null;
         }
         return getFirst().getLVal();
+    }
+    
+    @Override
+    public LinkedList<Ident> getNames() {
+        LinkedList<Ident> names = new LinkedList<>();
+        getUnits().forEach(unit -> names.addAll(unit.getNames()));
+        return names;
     }
 }

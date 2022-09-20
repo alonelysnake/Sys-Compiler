@@ -27,6 +27,11 @@ public class OutputStmt extends SingleStmt {
         this.rightParent = rightParent;
     }
     
+    //获取输出语句中不包含'"'的格式化字符串实际内容
+    public String getFormatStr() {
+        return str.getContent();
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

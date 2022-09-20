@@ -1,5 +1,9 @@
 package syntax.exp.unary;
 
+import lexer.token.Ident;
+
+import java.util.LinkedList;
+
 public class PrimaryExp implements ExpUnit {
     private final PrimaryUnit unit;
     
@@ -12,6 +16,20 @@ public class PrimaryExp implements ExpUnit {
             return (LVal) unit;
         }
         return null;
+    }
+    
+    public PrimaryUnit getUnit() {
+        return unit;
+    }
+    
+    public LinkedList<Ident> getNames() {
+        if (unit instanceof LVal) {
+            return ((LVal) unit).getNames();
+        } else if (unit instanceof SubExp) {
+            return ((SubExp) unit).getNames();
+        } else {
+            return new LinkedList<>();
+        }
     }
     
     @Override

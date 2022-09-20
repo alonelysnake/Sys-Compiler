@@ -1,5 +1,6 @@
 package syntax.decl;
 
+import lexer.token.Ident;
 import lexer.token.Token;
 import syntax.BlockItem;
 
@@ -34,6 +35,13 @@ public class Decl implements BlockItem {
     
     public boolean isConst() {
         return constSym != null;
+    }
+    
+    //获取某一行的变量/常变量声明中声明的所有量的名字（以Ident为元素），建立符号表与错误处理
+    public LinkedList<Ident> getIdentNames() {
+        LinkedList<Ident> names = new LinkedList<>();
+        defs.forEach(def -> names.addLast(def.getName()));
+        return names;
     }
     
     @Override

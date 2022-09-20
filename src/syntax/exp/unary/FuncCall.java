@@ -3,6 +3,8 @@ package syntax.exp.unary;
 import lexer.token.Ident;
 import lexer.token.Token;
 
+import java.util.LinkedList;
+
 public class FuncCall implements ExpUnit {
     /**
      * 函数调用
@@ -26,6 +28,14 @@ public class FuncCall implements ExpUnit {
         this.leftParent = leftParent;
         this.paras = null;
         this.rightParent = rightParent;
+    }
+    
+    @Override
+    public LinkedList<Ident> getNames() {
+        if (paras == null) {
+            return new LinkedList<>();
+        }
+        return paras.getNames();
     }
     
     @Override

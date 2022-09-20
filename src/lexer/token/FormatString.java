@@ -5,7 +5,7 @@ public class FormatString extends Token {
      * 格式化字符串
      */
     
-    private final String content;
+    private final String content;//不包含起始和终止的'"'的字符串（即{<Char>}）
     
     public FormatString(String name, int line) {
         super(TokenCategory.FORMATSTRING, name, line);

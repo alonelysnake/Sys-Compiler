@@ -35,6 +35,10 @@ public class FuncFParam {
         this.followDimensions = followDimensions;
     }
     
+    public Ident getName() {
+        return name;
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

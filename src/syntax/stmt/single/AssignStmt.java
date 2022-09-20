@@ -16,6 +16,10 @@ public class AssignStmt extends SingleStmt {
         this.exp = exp;
     }
     
+    public LVal getLval() {
+        return lval;
+    }
+    
     @Override
     public String toString() {
         return lval.toString() + assign.toString() + exp.toString() + super.toString();
