@@ -26,6 +26,10 @@ public class FuncRParas {
         return names;
     }
     
+    public int paraNum() {
+        return paras.size();
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

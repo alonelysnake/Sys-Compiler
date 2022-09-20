@@ -38,6 +38,14 @@ public class FuncCall implements ExpUnit {
         return paras.getNames();
     }
     
+    public int paraNum() {
+        if (paras == null) {
+            return 0;
+        } else {
+            return paras.paraNum();
+        }
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

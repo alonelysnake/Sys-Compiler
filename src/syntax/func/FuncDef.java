@@ -43,6 +43,13 @@ public class FuncDef {
         return params;
     }
     
+    public int paraNum() {
+        if (params == null) {
+            return 0;
+        }
+        return params.paraNum();
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
