@@ -1,6 +1,7 @@
 package syntax;
 
 import lexer.token.Token;
+import lexer.token.TokenCategory;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -24,6 +25,18 @@ public class Parser {
     protected Token getNext() {
         if (hasNext()) {
             return tokenIterator.next();
+        }
+        return null;
+    }
+    
+    protected Token getSpecialToken(TokenCategory type) {
+        Token token;
+        if (hasNext()) {
+            token = getNext();
+            if (token.getType().equals(type)) {
+                return token;
+            }
+            previous();
         }
         return null;
     }

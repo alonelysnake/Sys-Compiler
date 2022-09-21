@@ -20,11 +20,7 @@ public class FuncParser extends Parser {
     public MainFunc parseMainFunc(Token intSym, Token main) {
         Token first = getNext();
         Token leftParent = first;
-        first = getNext();
-        Token rightParent = null;
-        if (first.getType().equals(TokenCategory.R_PARENT)) {
-            rightParent = first;
-        }
+        Token rightParent = getSpecialToken(TokenCategory.R_PARENT);
         first = getNext();
         Block block = null;
         if (first.getType().equals(TokenCategory.L_BRACE)) {
@@ -36,21 +32,21 @@ public class FuncParser extends Parser {
     }
     
     public FuncDef parseFunc(Token funcType, Ident funcName) {
-        Token first;
         Token leftParent = getNext();
-        first = getNext();
+        Token first = getNext();
         FuncFParams paras = null;
         Token rightParent = null;
         if (first.getType().equals(TokenCategory.INT)) {
             previous();
             paras = parseParas();
-            rightParent = getNext();//TODO 缺少右括号时报错
+            rightParent = getSpecialToken(TokenCategory.R_PARENT);
         } else if (first.getType().equals(TokenCategory.R_PARENT)) {
             rightParent = first;
         } else {
             //既不是'int'也不是'）'
             System.err.println("自定义函数未读到')'，实为：" + first + "行：" + first.getLine());
         }
+        
         first = getNext();
         Block block = new StmtParser(getTokenIterator()).parseBlock(first);
         
@@ -64,15 +60,11 @@ public class FuncParser extends Parser {
         params.addLast(parsePara());
         Token first;
         while (hasNext()) {
-            first = getNext();
-            if (first.getType().equals(TokenCategory.COMMA)) {
+            first = getSpecialToken(TokenCategory.COMMA);
+            if (first != null) {
                 commas.addLast(first);
                 params.addLast(parsePara());
-            } else if (first.getType().equals(TokenCategory.R_PARENT)) {
-                previous();
-                break;
             } else {
-                System.err.println("行：" + first.getLine() + "函数定义形参后应为','或')'，实为：" + first);
                 break;
             }
         }
@@ -98,35 +90,24 @@ public class FuncParser extends Parser {
             return null;
         }
         
-        first = getNext();
-        if (!first.getType().equals(TokenCategory.L_BRACK)) {
-            //TODO 是否考虑错误情况?
-            previous();
+        Token left = getSpecialToken(TokenCategory.L_BRACK);//此时first是'['
+        if (left == null) {
             return new FuncFParam(bType, name);
         }
-        Token left = first;//此时first是'['
-        first = getNext();
-        if (!first.getType().equals(TokenCategory.R_BRACK)) {
-            //TODO 报错
-            System.err.println("形参数组第一维含参");
-            return null;
-        }
-        Token right = first;
+        Token right = getSpecialToken(TokenCategory.R_BRACK);
         Dimension firstDimension = new Dimension(left, right);
         
-        first = getNext();
-        if (!first.getType().equals(TokenCategory.L_BRACK)) {
-            previous();
+        first = getSpecialToken(TokenCategory.L_BRACK);
+        if (first == null) {
             return new FuncFParam(bType, name, firstDimension);
         }
         LinkedList<Dimension> dimensions = new LinkedList<>();
         while (hasNext()) {
-            if (!first.getType().equals(TokenCategory.L_BRACK)) {
-                previous();
+            dimensions.addLast(new DeclParser(getTokenIterator()).parseConstDimention(first));
+            first = getSpecialToken(TokenCategory.L_BRACK);
+            if (first == null) {
                 break;
             }
-            dimensions.addLast(new DeclParser(getTokenIterator()).parseConstDimention(first));
-            first = getNext();
         }
         return new FuncFParam(bType, name, firstDimension, dimensions);
     }

@@ -38,6 +38,7 @@ public class StmtParser extends Parser {
         while (hasNext()) {
             first = getNext();
             if (first.getType().equals(TokenCategory.R_BRACE)) {
+                //不会出现缺少右大括号的情况
                 rightBrace = first;
                 break;
             }
@@ -98,7 +99,7 @@ public class StmtParser extends Parser {
                     if (!assign.getType().equals(TokenCategory.ASSIGN)) {
                         //TODO 是否考虑行数变化
                         previous();
-                        Token semicolon = getSemicolon(first.getLine());//TODO 行数可能不准?
+                        Token semicolon = getSpecialToken(TokenCategory.SEMICN);
                         return new Stmt(new ExpStmt(exp, semicolon));
                     }
                     first = getNext();
@@ -106,17 +107,17 @@ public class StmtParser extends Parser {
                     if (first.getType().equals(TokenCategory.GETINT)) {
                         Token getInt = first;
                         Token leftarent = getNext();
-                        Token rightParent = getNext();//TODO 缺少右括号时报错
-                        Token semicolon = getSemicolon(leftarent.getLine());
+                        Token rightParent = getSpecialToken(TokenCategory.R_PARENT);
+                        Token semicolon = getSpecialToken(TokenCategory.SEMICN);
                         return new Stmt(new InputStmt(lVal, assign, getInt, leftarent, rightParent, semicolon));
                     } else {
                         previous();
                         exp = new ExpParser(getTokenIterator()).parseExp();
-                        Token semicolon = getSemicolon(assign.getLine());//TODO 行数可能不对
+                        Token semicolon = getSpecialToken(TokenCategory.SEMICN);
                         return new Stmt(new AssignStmt(lVal, assign, exp, semicolon));
                     }
                 } else {
-                    Token semicolon = getSemicolon(first.getLine());//TODO 行数可能不准?
+                    Token semicolon = getSpecialToken(TokenCategory.SEMICN);
                     return new Stmt(new ExpStmt(exp, semicolon));
                 }
         }
@@ -125,7 +126,7 @@ public class StmtParser extends Parser {
     public JudgeStmt parseJudge(Token ifOrWhile) {
         Token leftParent = getNext();
         Cond cond = new ExpParser(getTokenIterator()).parseCond();
-        Token rightParent = getNext();//TODO 缺少右括号时报错
+        Token rightParent = getSpecialToken(TokenCategory.R_PARENT);
         Stmt mainStmt = parseStmt();
         if (ifOrWhile.getType().equals(TokenCategory.WHILE)) {
             return new WhileStmt(ifOrWhile, leftParent, cond, rightParent, mainStmt);
@@ -142,29 +143,26 @@ public class StmtParser extends Parser {
     }
     
     public BreakStmt parseBreak(Token breakSym) {
-        Token semicolon = getSemicolon(breakSym.getLine());
+        Token semicolon = getSpecialToken(TokenCategory.SEMICN);
         return new BreakStmt(breakSym, semicolon);
     }
     
     public ContinueStmt parseContinue(Token continueSym) {
-        Token semicolon = getSemicolon(continueSym.getLine());
+        Token semicolon = getSpecialToken(TokenCategory.SEMICN);
         return new ContinueStmt(continueSym, semicolon);
     }
     
     public ReturnStmt parseReturn(Token returnSym) {
         Token first = getNext();
-        //if (first.getLine() == returnSym.getLine()) {
         //TODO 是否判断行数?
         if (first.getType().equals(TokenCategory.SEMICN)) {
             return new ReturnStmt(returnSym, first);
         } else {
             previous();
             Exp exp = new ExpParser(getTokenIterator()).parseExp();
-            Token semicolon = getSemicolon(returnSym.getLine());
+            Token semicolon = getSpecialToken(TokenCategory.SEMICN);
             return new ReturnStmt(returnSym, exp, semicolon);
         }
-        //}
-        //return null;//TODO 缺少分号报错
     }
     
     public OutputStmt parseOutput(Token print) {
@@ -173,27 +171,16 @@ public class StmtParser extends Parser {
         LinkedList<Token> commas = new LinkedList<>();
         LinkedList<Exp> paras = new LinkedList<>();
         while (hasNext()) {
-            Token comma = getNext();
-            if (comma.getType().equals(TokenCategory.COMMA)) {
+            Token comma = getSpecialToken(TokenCategory.COMMA);
+            if (comma != null) {
                 commas.addLast(comma);
                 paras.addLast(new ExpParser(getTokenIterator()).parseExp());
             } else {
-                previous();
                 break;
             }
         }
-        Token rightParent = getNext();//TODO 缺少右括号时报错
-        Token semicolon = getSemicolon(str.getLine());//TODO 行数不一定对
+        Token rightParent = getSpecialToken(TokenCategory.R_PARENT);
+        Token semicolon = getSpecialToken(TokenCategory.SEMICN);
         return new OutputStmt(print, leftParent, str, commas, paras, rightParent, semicolon);
-    }
-    
-    private Token getSemicolon(int lastLine) {
-        Token first = getNext();
-        if (!first.getType().equals(TokenCategory.SEMICN)) {
-            //TODO 是否要判断隔行的?
-            System.err.println("行：" + lastLine + "应为';'，实为无符号或：" + first);
-            return null;//TODO 报错
-        }
-        return first;
     }
 }

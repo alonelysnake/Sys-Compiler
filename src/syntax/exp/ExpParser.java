@@ -50,12 +50,11 @@ public class ExpParser extends Parser {
         LinkedList<Token> ops = new LinkedList<>();
         andExps.addLast(parseAndExp());
         while (hasNext()) {
-            Token op = getNext();
-            if (op.getType().equals(TokenCategory.OR)) {
+            Token op = getSpecialToken(TokenCategory.OR);
+            if (op != null) {
                 ops.addLast(op);
                 andExps.addLast(parseAndExp());
             } else {
-                previous();
                 break;
             }
         }
@@ -68,12 +67,11 @@ public class ExpParser extends Parser {
         LinkedList<Token> ops = new LinkedList<>();
         eqExps.addLast(parseEqExp());
         while (hasNext()) {
-            Token op = getNext();
-            if (op.getType().equals(TokenCategory.AND)) {
+            Token op = getSpecialToken(TokenCategory.AND);
+            if (op != null) {
                 ops.addLast(op);
                 eqExps.addLast(parseEqExp());
             } else {
-                previous();
                 break;
             }
         }
@@ -197,19 +195,19 @@ public class ExpParser extends Parser {
         if (first.getType().equals(TokenCategory.R_PARENT)) {
             //无参调用
             return new FuncCall(name, leftParent, first);
+        } else if (!(first.getType().equals(TokenCategory.IDENT)
+                || first.getType().equals(TokenCategory.L_PARENT)
+                || first.getType().equals(TokenCategory.INTCONST)
+                || first.getType().equals(TokenCategory.PLUS)
+                || first.getType().equals(TokenCategory.MINUS)
+                /*TODO NOT是否可以在此计算? || first.getType().equals(TokenCategory.NOT)*/)) {
+            return new FuncCall(name, leftParent, null);
         }
-        //TODO 没有右括号的报错
         
         //有参调用
-        previous();
         FuncRParas paras = parseFuncParas();
-        first = getNext();
-        if (first.getType().equals(TokenCategory.R_PARENT)) {
-            return new FuncCall(name, leftParent, paras, first);
-        } else {
-            //TODO 没有右括号的报错
-            return null;
-        }
+        first = getSpecialToken(TokenCategory.R_PARENT);
+        return new FuncCall(name, leftParent, paras, first);
     }
     
     public FuncRParas parseFuncParas() {
@@ -217,9 +215,8 @@ public class ExpParser extends Parser {
         LinkedList<Token> commas = new LinkedList<>();
         paras.addLast(parseExp());
         while (hasNext()) {
-            Token comma = getNext();
-            if (!comma.getType().equals(TokenCategory.COMMA)) {
-                previous();
+            Token comma = getSpecialToken(TokenCategory.COMMA);
+            if (comma == null) {
                 break;
             }
             commas.addLast(comma);
@@ -246,21 +243,17 @@ public class ExpParser extends Parser {
     public SubExp parseSubExp(Token leftParent) {
         //括号中间不能为空
         //TODO 可能不需要做此判断?
-        Token first = getNext();
+        Token first;
+        /*first = getNext();
         if (first.getType().equals(TokenCategory.R_PARENT)) {
             System.err.println("subExp的括号中间为空");
             return null;
         }
-        previous();
+        previous();*/
         
         Exp exp = parseExp();
         
-        first = getNext();
-        if (!first.getType().equals(TokenCategory.R_PARENT)) {
-            System.err.println("subExp未读到右括号，实为：" + first);
-            previous();
-            first = null;
-        }
+        first = getSpecialToken(TokenCategory.R_PARENT);
         return new SubExp(leftParent, exp, first);
     }
     
@@ -285,7 +278,7 @@ public class ExpParser extends Parser {
     
     public Dimension parseVarDimension(Token leftBrack) {
         Exp exp = parseExp();
-        Token rightBrack = getNext();//TODO 无右括号报错
+        Token rightBrack = getSpecialToken(TokenCategory.R_BRACK);
         return new Dimension(leftBrack, exp, rightBrack);
     }
 }

@@ -38,7 +38,9 @@ public class DeclParser extends Parser {
                 break;
             } else {
                 //TODO 报错
+                previous();
                 System.err.println("constDecl读到其他字符：" + first);
+                break;
             }
         }
         return new Decl(constSym, intSym, commas, defs, semicolon);
@@ -64,7 +66,9 @@ public class DeclParser extends Parser {
                 break;
             } else {
                 //TODO 报错
+                previous();
                 System.err.println("行：" + first.getLine() + "varDecl读到其他字符：" + first);
+                break;
             }
         }
         return new Decl(intSym, commas, defs, semicolon);
@@ -98,7 +102,7 @@ public class DeclParser extends Parser {
     
     public Dimension parseConstDimention(Token leftBrack) {
         ConstExp exp = new ExpParser(getTokenIterator()).parseConstExp();
-        Token rightBrack = getNext();//TODO 无右括号报错
+        Token rightBrack = getSpecialToken(TokenCategory.R_BRACK);
         
         return new Dimension(leftBrack, exp, rightBrack);
     }
@@ -128,8 +132,10 @@ public class DeclParser extends Parser {
                         //first = '}'
                         break;
                     } else {
+                        first = null;
+                        previous();
                         System.err.println("数组定义的初值的右大括号错误，读到词：" + first);//TODO 报错
-                        return null;
+                        break;
                     }
                 }
                 return new ArrInit(constFlag, leftBrace, vals, commas, first);
