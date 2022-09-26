@@ -1,12 +1,17 @@
 package syntax.func;
 
+import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import symbol.SymTable;
+import syntax.SyntaxNode;
 import syntax.exp.unary.Dimension;
 
 import java.util.LinkedList;
 
-public class FuncFParam {
+public class FuncFParam implements SyntaxNode {
     private final Token type;//固定为int
     private final Ident name;
     
@@ -37,6 +42,29 @@ public class FuncFParam {
     
     public Ident getName() {
         return name;
+    }
+    
+    public int getDimNum() {
+        if (firstDimension == null) {
+            return 0;
+        }
+        if (followDimensions == null) {
+            return 1;
+        }
+        return 1 + followDimensions.size();
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        SymTable symTable = state.getSymTable();
+        if (symTable.contains(name.getName(), false)) {
+            state.addError(new Error(name.getLine(), ErrorType.REDEFINED_IDENT));
+        }
+        if (followDimensions != null) {
+            for (Dimension dim : followDimensions) {
+                dim.analyse(state);
+            }
+        }
     }
     
     @Override

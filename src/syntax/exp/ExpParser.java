@@ -205,6 +205,7 @@ public class ExpParser extends Parser {
         }
         
         //有参调用
+        previous();
         FuncRParas paras = parseFuncParas();
         first = getSpecialToken(TokenCategory.R_PARENT);
         return new FuncCall(name, leftParent, paras, first);

@@ -1,5 +1,8 @@
 package syntax.exp.unary;
 
+import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Ident;
 
 import java.util.LinkedList;
@@ -35,6 +38,24 @@ public class LVal implements PrimaryUnit {
             dimensions.forEach(dim -> names.addAll(dim.getNames()));
         }
         return names;
+    }
+    
+    public int getDimNum() {
+        if (dimensions == null) {
+            return 0;
+        }
+        return dimensions.size();
+    }
+    
+    public void analyse(AnalysisState state) {
+        //检查变量是否存在
+        if (!state.getSymTable().contains(name.getName(), true)) {
+            state.addError(new Error(name.getLine(), ErrorType.UNDEFINED_IDENT));
+        }
+        //检查维数中的exp是否正确
+        for (Dimension dim : dimensions) {
+            dim.analyse(state);
+        }
     }
     
     @Override

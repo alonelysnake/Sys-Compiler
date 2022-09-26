@@ -1,8 +1,16 @@
 package syntax.exp.unary;
 
+import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import lexer.token.TokenCategory;
+import syntax.exp.multi.Exp;
+import syntax.func.FuncDef;
+import syntax.func.FuncFParam;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class FuncCall implements ExpUnit {
@@ -28,6 +36,65 @@ public class FuncCall implements ExpUnit {
         this.leftParent = leftParent;
         this.paras = null;
         this.rightParent = rightParent;
+    }
+    
+    public int getParaNum() {
+        if (paras == null) {
+            return 0;
+        }
+        return paras.paraNum();
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        //检查函数名是否存在
+        if (!state.containsFunc(name.getName())) {
+            state.addError(new Error(name.getLine(), ErrorType.UNDEFINED_IDENT));
+        }
+        //检查参数个数是否一致
+        FuncDef func = state.getFunc(name.getName());
+        if (func.getParaNum() != this.getParaNum()) {
+            state.addError(new Error(name.getLine(), ErrorType.MISMATCH_PARA_NUM));
+        }
+        //检查参数类型是否一致
+        //只有不涉及任何表达式运算时（即整个exp为一个左值lval或常量number或funccall）才根据情况确定其维度，否则一律为item（int）
+        if (paras != null && func.getParams() != null) {
+            Iterator<Exp> callIterator = paras.getParas().iterator();
+            Iterator<FuncFParam> defIterator = func.getParams().getParas().iterator();
+            while (callIterator.hasNext() && defIterator.hasNext()) {
+                ExpUnit call = callIterator.next().getFirstExpUnit();
+                FuncFParam def = defIterator.next();
+                int callDimNum = 0;
+                if (call != null) {
+                    if (call instanceof FuncCall) {
+                        String name = ((FuncCall) call).name.getName();
+                        //TODO 此处如果是未定义函数该如何处理?
+                        func = state.getFunc(name);
+                        if (func != null && func.getType().equals(TokenCategory.INT)) {
+                            callDimNum = 1;
+                        }
+                    } else {
+                        PrimaryUnit unit = ((PrimaryExp) call).getUnit();
+                        if (unit instanceof LVal) {
+                            callDimNum = ((LVal) unit).getDimNum();
+                        }
+                    }
+                }
+                if (def.getDimNum() != callDimNum) {
+                    state.addError(new Error(name.getLine(), ErrorType.MISMATCH_PARA_TYPE));
+                }
+            }
+        }
+        
+        
+        //检查右括号
+        if (rightParent == null) {
+            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));//TODO 修改行数
+        }
+    }
+    
+    public String getFuncName() {
+        return name.getName();
     }
     
     @Override

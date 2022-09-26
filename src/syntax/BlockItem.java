@@ -1,4 +1,7 @@
 package syntax;
 
-public interface BlockItem {
+import error.AnalysisState;
+
+public interface BlockItem extends SyntaxNode{
+
 }

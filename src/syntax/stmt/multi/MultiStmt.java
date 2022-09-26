@@ -1,4 +1,8 @@
 package syntax.stmt.multi;
 
-public interface MultiStmt {
+import error.AnalysisState;
+import syntax.SyntaxNode;
+
+public interface MultiStmt extends SyntaxNode {
+
 }

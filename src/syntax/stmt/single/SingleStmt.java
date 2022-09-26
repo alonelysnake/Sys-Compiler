@@ -1,9 +1,12 @@
 package syntax.stmt.single;
 
+import error.AnalysisState;
+import error.Error;
 import lexer.token.Token;
 import syntax.BlockItem;
+import syntax.SyntaxNode;
 
-public class SingleStmt implements BlockItem {
+public class SingleStmt implements SyntaxNode {
     /**
      * 所有单行语句，都一定含有semicolon
      */
@@ -22,8 +25,15 @@ public class SingleStmt implements BlockItem {
     }
     
     @Override
+    public void analyse(AnalysisState state) {
+    }
+    
+    @Override
     public String toString() {
-        //TODO 为null时
-        return semicolon.toString();
+        if (semicolon != null) {
+            return semicolon.toString();
+        } else {
+            return "";
+        }
     }
 }

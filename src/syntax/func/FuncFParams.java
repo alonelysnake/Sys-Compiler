@@ -1,12 +1,14 @@
 package syntax.func;
 
+import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
+import syntax.SyntaxNode;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class FuncFParams {
+public class FuncFParams implements SyntaxNode {
     private final LinkedList<Token> commas;
     private final LinkedList<FuncFParam> paras;
     
@@ -22,8 +24,18 @@ public class FuncFParams {
         return names;
     }
     
+    public LinkedList<FuncFParam> getParas() {
+        return paras;
+    }
+    
     public int paraNum() {
         return paras.size();
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        //此时已经进入自定义函数体的栈符号表中
+        paras.forEach(para -> para.analyse(state));
     }
     
     @Override

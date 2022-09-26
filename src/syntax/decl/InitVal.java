@@ -1,5 +1,8 @@
 package syntax.decl;
 
-public interface InitVal {
+import error.AnalysisState;
+import syntax.SyntaxNode;
+
+public interface InitVal extends SyntaxNode {
     boolean isConst();
 }

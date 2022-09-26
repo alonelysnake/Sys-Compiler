@@ -2,7 +2,7 @@ package syntax.exp.multi;
 
 import lexer.token.Ident;
 import lexer.token.Token;
-import syntax.exp.unary.LVal;
+import syntax.exp.unary.ExpUnit;
 
 import java.util.LinkedList;
 
@@ -11,11 +11,11 @@ public class AddExp extends ExpList<MulExp> {
         super(ops, units, "<AddExp>\n");
     }
     
-    public LVal getLVal() {
+    public ExpUnit getFirstExpUnit() {
         if (size() != 1) {
             return null;
         }
-        return getFirst().getLVal();
+        return getFirst().getFirstExpUnit();
     }
     
     @Override

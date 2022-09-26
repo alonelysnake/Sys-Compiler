@@ -1,12 +1,13 @@
 package syntax;
 
+import error.AnalysisState;
 import syntax.decl.Decl;
 import syntax.func.FuncDef;
 import syntax.func.MainFunc;
 
 import java.util.LinkedList;
 
-public class CompUnit {
+public class CompUnit implements SyntaxNode{
     private final LinkedList<Decl> globals;
     private final LinkedList<FuncDef> funcs;
     private final MainFunc mainFunc;
@@ -15,6 +16,17 @@ public class CompUnit {
         this.globals = globals;
         this.funcs = funcs;
         this.mainFunc = mainFunc;
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        for (Decl decl : globals) {
+            decl.analyse(state);
+        }
+        for (FuncDef func : funcs) {
+            func.analyse(state);
+        }
+        mainFunc.analyse(state);
     }
     
     @Override

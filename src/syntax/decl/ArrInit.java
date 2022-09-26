@@ -1,5 +1,6 @@
 package syntax.decl;
 
+import error.AnalysisState;
 import lexer.token.Token;
 
 import java.util.Iterator;
@@ -32,6 +33,13 @@ public class ArrInit implements InitVal {
     @Override
     public boolean isConst() {
         return constFlag;
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        if (vals != null) {
+            vals.forEach(val -> val.analyse(state));
+        }
     }
     
     @Override

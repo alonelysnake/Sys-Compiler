@@ -1,5 +1,6 @@
 package syntax.stmt.single;
 
+import error.AnalysisState;
 import lexer.token.Token;
 import syntax.exp.multi.Exp;
 
@@ -9,6 +10,11 @@ public class ExpStmt extends SingleStmt {
     public ExpStmt(Exp exp, Token semicolon) {
         super(semicolon);
         this.exp = exp;
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        exp.analyse(state);
     }
     
     @Override

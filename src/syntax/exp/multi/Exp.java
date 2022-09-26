@@ -1,7 +1,8 @@
 package syntax.exp.multi;
 
+import error.AnalysisState;
 import lexer.token.Ident;
-import syntax.exp.unary.LVal;
+import syntax.exp.unary.ExpUnit;
 
 import java.util.LinkedList;
 
@@ -16,12 +17,16 @@ public class Exp {
         return exp;
     }
     
-    public LVal getLVal() {
-        return exp.getLVal();
+    public ExpUnit getFirstExpUnit() {
+        return exp.getFirstExpUnit();
     }
     
     public LinkedList<Ident> getNames() {
         return exp.getNames();
+    }
+    
+    public void analyse(AnalysisState state) {
+        exp.analyse(state);
     }
     
     @Override

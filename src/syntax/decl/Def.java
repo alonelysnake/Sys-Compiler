@@ -1,12 +1,18 @@
 package syntax.decl;
 
+import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import symbol.SymTable;
+import symbol.Symbol;
+import syntax.SyntaxNode;
 import syntax.exp.unary.Dimension;
 
 import java.util.LinkedList;
 
-public class Def {
+public class Def implements SyntaxNode {
     private final Ident name;
     private final LinkedList<Dimension> dimensions;
     
@@ -40,6 +46,17 @@ public class Def {
     
     public Ident getName() {
         return name;
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        SymTable symTable = state.getSymTable();
+        if (symTable.contains(name.getName(), false)) {
+            symTable.add(new Symbol(name.getName(), constFlag));
+        } else {
+            state.addError(new Error(name.getLine(), ErrorType.REDEFINED_IDENT));
+        }
+        dimensions.forEach(dim -> dim.analyse(state));
     }
     
     @Override

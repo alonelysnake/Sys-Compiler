@@ -1,5 +1,6 @@
 package syntax.exp.unary;
 
+import error.AnalysisState;
 import lexer.token.Ident;
 
 import java.util.LinkedList;
@@ -11,11 +12,12 @@ public class PrimaryExp implements ExpUnit {
         this.unit = unit;
     }
     
-    public LVal getLVal() {
-        if (unit instanceof LVal) {
-            return (LVal) unit;
-        }
-        return null;
+    public boolean isSubExp() {
+        return unit instanceof SubExp;
+    }
+    
+    public ExpUnit getFirstExpUnit() {
+        return ((SubExp) unit).getFirstExpUnit();
     }
     
     public PrimaryUnit getUnit() {
@@ -30,6 +32,11 @@ public class PrimaryExp implements ExpUnit {
         } else {
             return new LinkedList<>();
         }
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        unit.analyse(state);
     }
     
     @Override

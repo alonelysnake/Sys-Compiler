@@ -1,5 +1,8 @@
 package syntax.exp.unary;
 
+import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
 import syntax.exp.multi.Exp;
@@ -27,6 +30,20 @@ public class SubExp implements PrimaryUnit {
     
     public LinkedList<Ident> getNames() {
         return exp.getNames();
+    }
+    
+    public ExpUnit getFirstExpUnit() {
+        return exp.getFirstExpUnit();
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        //子exp格式检查
+        exp.analyse(state);
+        //括号匹配检查
+        if (rightParent == null) {
+            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));//TODO 行数修改
+        }
     }
     
     @Override

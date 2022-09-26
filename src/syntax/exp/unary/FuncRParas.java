@@ -1,13 +1,15 @@
 package syntax.exp.unary;
 
+import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
+import syntax.SyntaxNode;
 import syntax.exp.multi.Exp;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class FuncRParas {
+public class FuncRParas implements SyntaxNode {
     /**
      * exp1 + ',' + exp2 + ...
      */
@@ -26,8 +28,20 @@ public class FuncRParas {
         return names;
     }
     
+    public LinkedList<Exp> getParas() {
+        return paras;
+    }
+    
     public int paraNum() {
         return paras.size();
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        //检查各个参数格式是否正确
+        for (Exp exp : paras) {
+            exp.analyse(state);
+        }
     }
     
     @Override

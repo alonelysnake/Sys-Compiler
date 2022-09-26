@@ -1,5 +1,6 @@
 package syntax.stmt;
 
+import error.AnalysisState;
 import lexer.token.Token;
 import syntax.BlockItem;
 import syntax.stmt.multi.MultiStmt;
@@ -32,6 +33,15 @@ public class Stmt implements BlockItem {
         this.single = null;
         this.multi = multi;
         this.type = StmtType.MULTI;
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        if (this.type == StmtType.MULTI) {
+            multi.analyse(state);
+        } else {
+            single.analyse(state);
+        }
     }
     
     @Override

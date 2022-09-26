@@ -1,11 +1,13 @@
 package syntax.exp.unary;
 
+import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
+import syntax.SyntaxNode;
 
 import java.util.LinkedList;
 
-public class UnaryExp {
+public class UnaryExp implements SyntaxNode {
     private final ExpUnit unit;
     private final LinkedList<Token> ops;
     
@@ -14,15 +16,20 @@ public class UnaryExp {
         this.ops = ops;
     }
     
-    public LVal getLVal() {
-        if (unit instanceof PrimaryExp) {
-            return ((PrimaryExp) unit).getLVal();
+    public ExpUnit getFirstExpUnit() {
+        if (unit instanceof PrimaryExp && ((PrimaryExp) unit).isSubExp()) {
+            return ((PrimaryExp) unit).getFirstExpUnit();
         }
-        return null;
+        return unit;
     }
     
     public LinkedList<Ident> getNames() {
         return unit.getNames();
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        this.unit.analyse(state);
     }
     
     @Override

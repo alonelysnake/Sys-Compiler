@@ -1,7 +1,14 @@
 package syntax.stmt.multi;
 
+import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Token;
+import lexer.token.TokenCategory;
+import symbol.SymTable;
 import syntax.BlockItem;
+import syntax.func.FuncDef;
+import syntax.stmt.single.ReturnStmt;
 
 import java.util.LinkedList;
 
@@ -14,6 +21,29 @@ public class Block implements MultiStmt {
         this.leftBrace = leftBrace;
         this.items = items;
         this.rightBrace = rightBrace;
+    }
+    
+    public void analyse(AnalysisState state) {
+        SymTable symTable = state.getSymTable();
+        //先判断是否是函数体的第一层block，只有不是才新增栈符号表(是的时候由FuncDef新增并处理了)
+        if (!state.isInFunc() || state.getSymTable().getParent().getParent() != null) {
+            symTable = new SymTable(symTable);
+            state.pushSymTable(symTable);
+        }
+        // 后续的扫描处理
+        for (BlockItem item : items) {
+            item.analyse(state);
+        }
+        
+        state.popSymTable();
+        
+        //return检查
+        FuncDef func = state.getCurFunc();
+        if (func != null && state.isGlobal() && func.getType().equals(TokenCategory.INT)) {
+            if (!(items.getLast() instanceof ReturnStmt)) {
+                state.addError(new Error(rightBrace.getLine(), ErrorType.LACK_RETURN));
+            }
+        }
     }
     
     @Override

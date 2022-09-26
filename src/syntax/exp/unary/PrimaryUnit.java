@@ -1,4 +1,6 @@
 package syntax.exp.unary;
 
-public interface PrimaryUnit {
+import syntax.SyntaxNode;
+
+public interface PrimaryUnit extends SyntaxNode {
 }

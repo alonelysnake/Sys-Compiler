@@ -1,5 +1,6 @@
 package syntax.stmt.multi;
 
+import error.AnalysisState;
 import lexer.token.Token;
 import syntax.exp.multi.Cond;
 import syntax.stmt.Stmt;
@@ -26,6 +27,14 @@ public class IfStmt extends JudgeStmt {
     
     public boolean hasElse() {
         return this.elseSym != null;
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        super.analyse(state);
+        if (elseStmt != null) {
+            elseStmt.analyse(state);
+        }
     }
     
     @Override

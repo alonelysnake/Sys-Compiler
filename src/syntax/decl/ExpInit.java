@@ -1,5 +1,6 @@
 package syntax.decl;
 
+import error.AnalysisState;
 import syntax.exp.multi.Exp;
 
 public class ExpInit implements InitVal {
@@ -14,6 +15,11 @@ public class ExpInit implements InitVal {
     @Override
     public boolean isConst() {
         return constFlag;
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        exp.analyse(state);
     }
     
     @Override

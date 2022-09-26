@@ -10,7 +10,10 @@ import syntax.decl.DeclParser;
 import syntax.exp.ExpParser;
 import syntax.exp.multi.Cond;
 import syntax.exp.multi.Exp;
+import syntax.exp.unary.ExpUnit;
 import syntax.exp.unary.LVal;
+import syntax.exp.unary.PrimaryExp;
+import syntax.exp.unary.PrimaryUnit;
 import syntax.stmt.multi.Block;
 import syntax.stmt.multi.IfStmt;
 import syntax.stmt.multi.JudgeStmt;
@@ -93,7 +96,14 @@ public class StmtParser extends Parser {
             default:
                 previous();
                 Exp exp = new ExpParser(getTokenIterator()).parseExp();
-                LVal lVal = exp.getLVal();
+                ExpUnit firstUnit = exp.getFirstExpUnit();
+                LVal lVal = null;
+                if ((firstUnit instanceof PrimaryExp)) {
+                    PrimaryUnit firstPriUnit = ((PrimaryExp) firstUnit).getUnit();
+                    if (firstPriUnit instanceof LVal) {
+                        lVal = (LVal) firstPriUnit;
+                    }
+                }
                 if (lVal != null) {
                     Token assign = getNext();
                     if (!assign.getType().equals(TokenCategory.ASSIGN)) {

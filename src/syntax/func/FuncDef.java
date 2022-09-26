@@ -1,10 +1,16 @@
 package syntax.func;
 
+import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import lexer.token.TokenCategory;
+import symbol.SymTable;
+import syntax.SyntaxNode;
 import syntax.stmt.multi.Block;
 
-public class FuncDef {
+public class FuncDef implements SyntaxNode {
     private final FuncType returnType;
     private final Ident name;
     private final Token leftParent;
@@ -43,11 +49,47 @@ public class FuncDef {
         return params;
     }
     
+    public int getParaNum() {
+        if (params == null) {
+            return 0;
+        }
+        return params.paraNum();
+    }
+    
     public int paraNum() {
         if (params == null) {
             return 0;
         }
         return params.paraNum();
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        //声明进入自定义函数处理
+        state.setCurFunc(this);
+        //函数名重定义
+        if (!state.addFunc(this)) {
+            state.addError(new Error(name.getLine(), ErrorType.REDEFINED_IDENT));
+        } else {
+            state.addFunc(this);
+        }
+        // 栈顶放入符号表并处理形参
+        state.pushSymTable(new SymTable(state.getSymTable()));
+        if (params != null) {
+            params.analyse(state);
+        }
+        // 处理右括号
+        if (this.rightParent == null) {
+            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));//TODO 行数修改
+        }
+        // 处理block
+        content.analyse(state);
+        //完成自定义函数处理
+        state.setCurFunc(null);
+    }
+    
+    public TokenCategory getType() {
+        return returnType.getType().getType();
     }
     
     @Override
@@ -59,8 +101,9 @@ public class FuncDef {
         if (params != null) {
             sb.append(params);
         }
-        //TODO 无右括号报错
-        sb.append(rightParent);
+        if (rightParent != null) {
+            sb.append(rightParent);
+        }
         sb.append(content);
         sb.append("<FuncDef>\n");
         return sb.toString();

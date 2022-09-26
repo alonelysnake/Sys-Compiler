@@ -1,9 +1,11 @@
 package syntax.func;
 
+import error.AnalysisState;
 import lexer.token.Token;
+import syntax.SyntaxNode;
 import syntax.stmt.multi.Block;
 
-public class MainFunc {
+public class MainFunc implements SyntaxNode {
     private final Token intSym;
     private final Token mainSym;
     private final Token leftParent;
@@ -17,6 +19,11 @@ public class MainFunc {
         this.leftParent = leftParent;
         this.rightParent = rightParent;
         this.content = content;
+    }
+    @Override
+    public void analyse(AnalysisState state) {
+        //TODO 主函数不需要判断缺少')'?
+        content.analyse(state);
     }
     
     @Override

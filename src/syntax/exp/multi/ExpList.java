@@ -1,12 +1,14 @@
 package syntax.exp.multi;
 
+import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
+import syntax.SyntaxNode;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public abstract class ExpList<T> {
+public abstract class ExpList<T> implements SyntaxNode {
     /**
      * 存放表达式的容器
      */
@@ -41,6 +43,17 @@ public abstract class ExpList<T> {
     }
     
     public abstract LinkedList<Ident> getNames();
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        for (T t : units) {
+            if (t instanceof SyntaxNode) {
+                ((SyntaxNode) t).analyse(state);
+            } else {
+                return;
+            }
+        }
+    }
     
     @Override
     public String toString() {

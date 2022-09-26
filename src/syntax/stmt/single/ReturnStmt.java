@@ -1,6 +1,10 @@
 package syntax.stmt.single;
 
+import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Token;
+import lexer.token.TokenCategory;
 import syntax.exp.multi.Exp;
 
 public class ReturnStmt extends SingleStmt {
@@ -17,6 +21,22 @@ public class ReturnStmt extends SingleStmt {
         super(semicolon);
         this.returnSym = returnSym;
         this.exp = null;
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        //判断函数是否缺少返回值
+        //保证全局的Decl部分不会出现return语句
+        //如果state的curFunc不为空说明在自定义函数里，根据其functype判断。为空说明在main函数里，一定要有return
+        if (state.getCurFunc() != null && state.getCurFunc().getType().equals(TokenCategory.VOID)) {
+            if (exp != null) {
+                state.addError(new Error(returnSym.getLine(), ErrorType.MISMATCH_RETURN));
+            }
+        }
+        //判断分号
+        if (!hasSemicolon()) {
+            state.addError(new Error(returnSym.getLine(), ErrorType.LACK_SEMICOLON));//TODO 行数修改
+        }
     }
     
     @Override

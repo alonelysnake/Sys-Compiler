@@ -1,5 +1,6 @@
 package syntax.stmt.multi;
 
+import error.AnalysisState;
 import lexer.token.Token;
 import syntax.exp.multi.Cond;
 import syntax.stmt.Stmt;
@@ -11,6 +12,13 @@ public class WhileStmt extends JudgeStmt {
                      Stmt mainStmt) {
         super(leftParent, condExp, rightParent, mainStmt);
         this.whileSym = whileSym;
+    }
+    
+    @Override
+    public void analyse(AnalysisState state) {
+        state.getInLoop();
+        super.analyse(state);
+        state.getOutLoop();
     }
     
     @Override
