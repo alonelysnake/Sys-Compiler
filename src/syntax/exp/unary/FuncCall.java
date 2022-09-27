@@ -6,6 +6,7 @@ import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
 import lexer.token.TokenCategory;
+import syntax.decl.BType;
 import syntax.exp.multi.Exp;
 import syntax.func.FuncDef;
 import syntax.func.FuncFParam;
@@ -57,30 +58,16 @@ public class FuncCall implements ExpUnit {
             state.addError(new Error(name.getLine(), ErrorType.MISMATCH_PARA_NUM));
         }
         //检查参数类型是否一致
+        //表达式运算规则：对于非单项的表达式，运算符两边的表达式必须有相同维度且不为void，此时返回值为int，否则应报错
         //只有不涉及任何表达式运算时（即整个exp为一个左值lval或常量number或funccall）才根据情况确定其维度，否则一律为item（int）
         if (paras != null && func.getParams() != null) {
             Iterator<Exp> callIterator = paras.getParas().iterator();
             Iterator<FuncFParam> defIterator = func.getParams().getParas().iterator();
             while (callIterator.hasNext() && defIterator.hasNext()) {
-                ExpUnit call = callIterator.next().getFirstExpUnit();
-                FuncFParam def = defIterator.next();
-                int callDimNum = 0;
-                if (call != null) {
-                    if (call instanceof FuncCall) {
-                        String name = ((FuncCall) call).name.getName();
-                        //TODO 此处如果是未定义函数该如何处理?
-                        func = state.getFunc(name);
-                        if (func != null && func.getType().equals(TokenCategory.INT)) {
-                            callDimNum = 1;
-                        }
-                    } else {
-                        PrimaryUnit unit = ((PrimaryExp) call).getUnit();
-                        if (unit instanceof LVal) {
-                            callDimNum = ((LVal) unit).getDimNum();
-                        }
-                    }
-                }
-                if (def.getDimNum() != callDimNum) {
+                //TODO 此处如果是未定义函数该如何处理?
+                BType callType = callIterator.next().getExpType(state);
+                BType defType = defIterator.next().getType();
+                if (callType == null || callType != defType) {
                     state.addError(new Error(name.getLine(), ErrorType.MISMATCH_PARA_TYPE));
                 }
             }

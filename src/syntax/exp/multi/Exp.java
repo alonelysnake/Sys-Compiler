@@ -2,6 +2,7 @@ package syntax.exp.multi;
 
 import error.AnalysisState;
 import lexer.token.Ident;
+import syntax.decl.BType;
 import syntax.exp.unary.ExpUnit;
 
 import java.util.LinkedList;
@@ -19,6 +20,10 @@ public class Exp {
     
     public ExpUnit getFirstExpUnit() {
         return exp.getFirstExpUnit();
+    }
+    
+    public BType getExpType(AnalysisState state) {
+        return exp.getExpType(state);
     }
     
     public LinkedList<Ident> getNames() {

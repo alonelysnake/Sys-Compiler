@@ -7,6 +7,7 @@ import lexer.token.Ident;
 import lexer.token.Token;
 import symbol.SymTable;
 import syntax.SyntaxNode;
+import syntax.decl.BType;
 import syntax.exp.unary.Dimension;
 
 import java.util.LinkedList;
@@ -42,6 +43,20 @@ public class FuncFParam implements SyntaxNode {
     
     public Ident getName() {
         return name;
+    }
+    
+    public BType getType() {
+        if (firstDimension == null) {
+            return BType.INT;
+        }
+        if (followDimensions == null) {
+            return BType.ARR;
+        }
+        if (followDimensions.size() > 1) {
+            System.err.println("FuncFParam-getType()：数组维度大于2");
+            return null;
+        }
+        return BType.MAT;
     }
     
     public int getDimNum() {

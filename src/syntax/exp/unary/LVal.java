@@ -4,6 +4,7 @@ import error.AnalysisState;
 import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
+import syntax.decl.BType;
 
 import java.util.LinkedList;
 
@@ -53,6 +54,19 @@ public class LVal implements PrimaryUnit {
             return 0;
         }
         return dimensions.size();
+    }
+    
+    public BType getBtype() {
+        if (dimensions == null) {
+            return BType.INT;
+        } else if (dimensions.size() == 1) {
+            return BType.ARR;
+        } else if (dimensions.size() == 2) {
+            return BType.MAT;
+        } else {
+            System.err.println("LVal-getBType()：出现二维以上的数组");
+            return null;
+        }
     }
     
     public void analyse(AnalysisState state) {
