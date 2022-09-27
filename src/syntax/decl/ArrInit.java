@@ -36,6 +36,11 @@ public class ArrInit implements InitVal {
     }
     
     @Override
+    public int getMaxLine() {
+        return rightBrace.getLine();
+    }
+    
+    @Override
     public void analyse(AnalysisState state) {
         if (vals != null) {
             vals.forEach(val -> val.analyse(state));

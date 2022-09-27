@@ -44,6 +44,10 @@ public class Stmt implements BlockItem {
         }
     }
     
+    public SingleStmt getSingle() {
+        return single;
+    }
+    
     @Override
     public String toString() {
         if (type == StmtType.MULTI) {

@@ -37,6 +37,16 @@ public class Dimension {
         return new LinkedList<>();
     }
     
+    public int getMaxLine() {
+        if (rightBracket != null) {
+            return rightBracket.getLine();
+        } else if (exp != null) {
+            return exp.getMaxLine();
+        } else {
+            return leftBracket.getLine();
+        }
+    }
+    
     public boolean hasRightBracket() {
         return rightBracket != null;
     }
@@ -46,7 +56,11 @@ public class Dimension {
             exp.analyse(state);
         }
         if (rightBracket == null) {
-            state.addError(new Error(leftBracket.getLine(), ErrorType.LACK_R_BRACKET));//TODO 行数修改
+            if (exp == null) {
+                state.addError(new Error(leftBracket.getLine(), ErrorType.LACK_R_BRACKET));
+            } else {
+                state.addError(new Error(exp.getMaxLine(), ErrorType.LACK_R_BRACKET));
+            }
         }
     }
     

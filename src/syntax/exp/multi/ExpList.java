@@ -4,6 +4,7 @@ import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
 import syntax.SyntaxNode;
+import syntax.exp.unary.UnaryExp;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -42,7 +43,18 @@ public abstract class ExpList<T> implements SyntaxNode {
         return units;
     }
     
-    public abstract LinkedList<Ident> getNames();
+    public abstract LinkedList<Ident> getNames();//TODO 仿照getMaxLine精简
+    
+    public int getMaxLine() {
+        T last = units.getLast();
+        if (last instanceof ExpList) {
+            return ((ExpList<?>) last).getMaxLine();
+        }
+        if (last instanceof UnaryExp) {
+            return ((UnaryExp) last).getMaxLine();
+        }
+        return 0;
+    }
     
     @Override
     public void analyse(AnalysisState state) {

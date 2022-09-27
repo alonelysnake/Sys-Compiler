@@ -16,6 +16,11 @@ public class Number implements PrimaryUnit {
     }
     
     @Override
+    public int getMaxLine() {
+        return strVal.getLine();
+    }
+    
+    @Override
     public String toString() {
         return strVal + "<Number>\n";
     }

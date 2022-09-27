@@ -89,12 +89,27 @@ public class FuncCall implements ExpUnit {
         
         //检查右括号
         if (rightParent == null) {
-            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));//TODO 修改行数
+            if (paras == null) {
+                state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));
+            } else {
+                state.addError(new Error(paras.getMaxLine(), ErrorType.LACK_R_PARENT));
+            }
         }
     }
     
     public String getFuncName() {
         return name.getName();
+    }
+    
+    @Override
+    public int getMaxLine() {
+        if (rightParent != null) {
+            return rightParent.getLine();
+        } else if (paras != null) {
+            return paras.getMaxLine();
+        } else {
+            return leftParent.getLine();
+        }
     }
     
     @Override

@@ -42,8 +42,16 @@ public class SubExp implements PrimaryUnit {
         exp.analyse(state);
         //括号匹配检查
         if (rightParent == null) {
-            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));//TODO 行数修改
+            state.addError(new Error(exp.getMaxLine(), ErrorType.LACK_R_PARENT));
         }
+    }
+    
+    @Override
+    public int getMaxLine() {
+        if (rightParent != null) {
+            return rightParent.getLine();
+        }
+        return exp.getMaxLine();
     }
     
     @Override

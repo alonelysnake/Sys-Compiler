@@ -24,6 +24,10 @@ public class FuncFParams implements SyntaxNode {
         return names;
     }
     
+    public int getMaxLine() {
+        return paras.getLast().getMaxLine();
+    }
+    
     public LinkedList<FuncFParam> getParas() {
         return paras;
     }

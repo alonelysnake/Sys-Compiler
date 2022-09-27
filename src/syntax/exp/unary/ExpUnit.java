@@ -7,4 +7,5 @@ import java.util.LinkedList;
 
 public interface ExpUnit extends SyntaxNode {
     LinkedList<Ident> getNames();
+    int getMaxLine();
 }

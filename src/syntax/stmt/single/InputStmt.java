@@ -41,11 +41,17 @@ public class InputStmt extends SingleStmt {
             }
         }
         lVal.analyse(state);
+        //右括号检查
         if (rightParent == null) {
-            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));//TODO 行数修改
+            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));
         }
+        //分号检查
         if (!hasSemicolon()) {
-            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_SEMICOLON));//TODO 行数修改
+            if (rightParent == null) {
+                state.addError(new Error(leftParent.getLine(), ErrorType.LACK_SEMICOLON));
+            } else {
+                state.addError(new Error(rightParent.getLine(), ErrorType.LACK_SEMICOLON));
+            }
         }
     }
     

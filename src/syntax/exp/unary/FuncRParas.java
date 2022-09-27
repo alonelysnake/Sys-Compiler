@@ -32,6 +32,10 @@ public class FuncRParas implements SyntaxNode {
         return paras;
     }
     
+    public int getMaxLine() {
+        return paras.getLast().getMaxLine();
+    }
+    
     public int paraNum() {
         return paras.size();
     }

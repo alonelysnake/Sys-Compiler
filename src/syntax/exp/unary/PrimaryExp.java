@@ -24,6 +24,11 @@ public class PrimaryExp implements ExpUnit {
         return unit;
     }
     
+    @Override
+    public int getMaxLine() {
+        return unit.getMaxLine();
+    }
+    
     public LinkedList<Ident> getNames() {
         if (unit instanceof LVal) {
             return ((LVal) unit).getNames();

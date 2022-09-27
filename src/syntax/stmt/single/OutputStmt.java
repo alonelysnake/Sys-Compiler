@@ -65,12 +65,20 @@ public class OutputStmt extends SingleStmt {
             state.addError(new Error(printf.getLine(), ErrorType.MISMATCH_PRINTF));
         }
         //分析右括号
+        int maxLine = str.getLine();
         if (rightParent == null) {
-            state.addError(new Error(str.getLine(), ErrorType.LACK_R_PARENT));//TODO 行数修改
+            if (paraNum != 0) {
+                maxLine = paras.getLast().getMaxLine();
+            }
+            state.addError(new Error(maxLine, ErrorType.LACK_R_PARENT));
         }
         //分析分号
         if (!hasSemicolon()) {
-            state.addError(new Error(str.getLine(), ErrorType.LACK_SEMICOLON));//TODO 行数修改
+            if (rightParent == null) {
+                state.addError(new Error(maxLine, ErrorType.LACK_SEMICOLON));
+            } else {
+                state.addError(new Error(rightParent.getLine(), ErrorType.LACK_SEMICOLON));
+            }
         }
     }
     

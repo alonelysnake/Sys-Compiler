@@ -48,6 +48,16 @@ public class Def implements SyntaxNode {
         return name;
     }
     
+    public int getMaxLine() {
+        if (val == null) {
+            if (dimensions == null) {
+                return name.getLine();
+            }
+            return dimensions.getLast().getMaxLine();
+        }
+        return val.getMaxLine();
+    }
+    
     @Override
     public void analyse(AnalysisState state) {
         SymTable symTable = state.getSymTable();

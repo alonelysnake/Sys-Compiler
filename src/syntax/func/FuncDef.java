@@ -80,7 +80,11 @@ public class FuncDef implements SyntaxNode {
         }
         // 处理右括号
         if (this.rightParent == null) {
-            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));//TODO 行数修改
+            if (params == null) {
+                state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));
+            } else {
+                state.addError(new Error(params.getMaxLine(), ErrorType.LACK_R_PARENT));
+            }
         }
         // 处理block
         content.analyse(state);

@@ -13,6 +13,10 @@ public class ErrorTable {
         errors = new LinkedList<>();
     }
     
+    public LinkedList<Error> getErrors() {
+        return errors;
+    }
+    
     public void add(Error error) {
         errors.addLast(error);
     }

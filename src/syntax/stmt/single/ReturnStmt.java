@@ -35,7 +35,11 @@ public class ReturnStmt extends SingleStmt {
         }
         //判断分号
         if (!hasSemicolon()) {
-            state.addError(new Error(returnSym.getLine(), ErrorType.LACK_SEMICOLON));//TODO 行数修改
+            if (exp == null) {
+                state.addError(new Error(returnSym.getLine(), ErrorType.LACK_SEMICOLON));
+            } else {
+                state.addError(new Error(exp.getMaxLine(), ErrorType.LACK_SEMICOLON));
+            }
         }
     }
     

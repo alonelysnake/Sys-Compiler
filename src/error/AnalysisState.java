@@ -47,6 +47,10 @@ public class AnalysisState {
         return funcs.get(name);
     }
     
+    public ErrorTable getErrorTable() {
+        return errorTable;
+    }
+    
     public void getInLoop() {
         loopDepth++;
     }

@@ -13,6 +13,10 @@ public class Cond {
         exp.analyse(state);
     }
     
+    public int getMaxLine() {
+        return exp.getMaxLine();
+    }
+    
     @Override
     public String toString() {
         return exp.toString() + "<Cond>\n";

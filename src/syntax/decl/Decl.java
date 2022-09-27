@@ -54,15 +54,15 @@ public class Decl implements BlockItem {
         for (Def def : this.defs) {
             String name = def.getName().getName();
             if (symTable.contains(name, false)) {
-                symTable.add(new Symbol(name, isConst()));
-            } else {
                 state.addError(new Error(def.getName().getLine(), ErrorType.REDEFINED_IDENT));
+            } else {
+                symTable.add(new Symbol(name, isConst()));
             }
             //TODO 重复定义的是否还要检查括号匹配?
             def.analyse(state);
         }
         if (semicolon == null) {
-            state.addError(new Error(type.getLine(), ErrorType.LACK_SEMICOLON));//TODO 行数修改
+            state.addError(new Error(defs.getLast().getMaxLine(), ErrorType.LACK_SEMICOLON));
         }
     }
     

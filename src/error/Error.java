@@ -8,4 +8,9 @@ public class Error {
         this.line = line;
         this.type = type;
     }
+    
+    @Override
+    public String toString() {
+        return line + " " + type.getErrorCode() + "\n";
+    }
 }

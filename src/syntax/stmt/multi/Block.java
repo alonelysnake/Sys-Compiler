@@ -8,6 +8,7 @@ import lexer.token.TokenCategory;
 import symbol.SymTable;
 import syntax.BlockItem;
 import syntax.func.FuncDef;
+import syntax.stmt.Stmt;
 import syntax.stmt.single.ReturnStmt;
 
 import java.util.LinkedList;
@@ -39,9 +40,14 @@ public class Block implements MultiStmt {
         
         //return检查
         FuncDef func = state.getCurFunc();
-        if (func != null && state.isGlobal() && func.getType().equals(TokenCategory.INT)) {
-            if (!(items.getLast() instanceof ReturnStmt)) {
+        if (state.isGlobal() && (func == null || func.getType().equals(TokenCategory.INT))) {
+            if (!(items.getLast() instanceof Stmt)) {
                 state.addError(new Error(rightBrace.getLine(), ErrorType.LACK_RETURN));
+            } else {
+                Stmt lastStmt = (Stmt) items.getLast();
+                if (!(lastStmt.getSingle() instanceof ReturnStmt)) {
+                    state.addError(new Error(rightBrace.getLine(), ErrorType.LACK_RETURN));
+                }
             }
         }
     }

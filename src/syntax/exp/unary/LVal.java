@@ -40,6 +40,14 @@ public class LVal implements PrimaryUnit {
         return names;
     }
     
+    @Override
+    public int getMaxLine() {
+        if (dimensions == null) {
+            return name.getLine();
+        }
+        return dimensions.getLast().getMaxLine();
+    }
+    
     public int getDimNum() {
         if (dimensions == null) {
             return 0;

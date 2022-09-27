@@ -24,7 +24,7 @@ public class JudgeStmt implements MultiStmt {
     public void analyse(AnalysisState state) {
         condExp.analyse(state);
         if (rightParent == null) {
-            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));//TODO 行数修改
+            state.addError(new Error(condExp.getMaxLine(), ErrorType.LACK_R_PARENT));
         }
         mainStmt.analyse(state);
     }

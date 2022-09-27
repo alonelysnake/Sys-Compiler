@@ -25,6 +25,10 @@ public class Exp {
         return exp.getNames();
     }
     
+    public int getMaxLine() {
+        return exp.getMaxLine();
+    }
+    
     public void analyse(AnalysisState state) {
         exp.analyse(state);
     }

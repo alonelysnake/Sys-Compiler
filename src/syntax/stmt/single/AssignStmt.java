@@ -33,13 +33,13 @@ public class AssignStmt extends SingleStmt {
         Symbol symbol = symTable.get(name);
         if (symbol != null) {
             if (symbol.isConst()) {
-                state.addError(new Error(lval.getName().getLine(), ErrorType.MODIFY_CONST));//TODO 行数修改
+                state.addError(new Error(lval.getName().getLine(), ErrorType.MODIFY_CONST));
             }
         }
         lval.analyse(state);
         exp.analyse(state);
         if (!hasSemicolon()) {
-            state.addError(new Error(assign.getLine(), ErrorType.LACK_SEMICOLON));//TODO 行数修改
+            state.addError(new Error(exp.getMaxLine(), ErrorType.LACK_SEMICOLON));
         }
     }
     

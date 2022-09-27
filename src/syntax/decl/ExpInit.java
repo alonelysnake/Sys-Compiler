@@ -18,6 +18,11 @@ public class ExpInit implements InitVal {
     }
     
     @Override
+    public int getMaxLine() {
+        return exp.getMaxLine();
+    }
+    
+    @Override
     public void analyse(AnalysisState state) {
         exp.analyse(state);
     }

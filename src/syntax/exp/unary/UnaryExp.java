@@ -27,6 +27,10 @@ public class UnaryExp implements SyntaxNode {
         return unit.getNames();
     }
     
+    public int getMaxLine() {
+        return unit.getMaxLine();
+    }
+    
     @Override
     public void analyse(AnalysisState state) {
         this.unit.analyse(state);

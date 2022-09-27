@@ -54,6 +54,15 @@ public class FuncFParam implements SyntaxNode {
         return 1 + followDimensions.size();
     }
     
+    public int getMaxLine() {
+        if (firstDimension == null) {
+            return name.getLine();
+        } else if (followDimensions == null) {
+            return firstDimension.getMaxLine();
+        }
+        return followDimensions.getLast().getMaxLine();
+    }
+    
     @Override
     public void analyse(AnalysisState state) {
         SymTable symTable = state.getSymTable();
