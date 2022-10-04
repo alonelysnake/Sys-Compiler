@@ -85,7 +85,10 @@ public class FuncFParam implements SyntaxNode {
         if (symTable.contains(name.getName(), false)) {
             state.addError(new Error(name.getLine(), ErrorType.REDEFINED_IDENT));
         } else {
-            symTable.add(new Symbol(name.getName(), false));
+            symTable.add(new Symbol(name.getName(), false,getDimNum()));
+        }
+        if (firstDimension != null) {
+            firstDimension.analyse(state);
         }
         if (followDimensions != null) {
             for (Dimension dim : followDimensions) {

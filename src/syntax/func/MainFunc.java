@@ -1,6 +1,8 @@
 package syntax.func;
 
 import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Token;
 import syntax.SyntaxNode;
 import syntax.stmt.multi.Block;
@@ -20,9 +22,13 @@ public class MainFunc implements SyntaxNode {
         this.rightParent = rightParent;
         this.content = content;
     }
+    
     @Override
     public void analyse(AnalysisState state) {
         //TODO 主函数不需要判断缺少')'?
+        if (rightParent == null) {
+            state.addError(new Error(leftParent.getLine(), ErrorType.LACK_R_PARENT));
+        }
         content.analyse(state);
     }
     

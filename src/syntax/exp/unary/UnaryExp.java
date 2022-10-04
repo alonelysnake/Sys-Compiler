@@ -6,9 +6,7 @@ import lexer.token.Token;
 import lexer.token.TokenCategory;
 import syntax.SyntaxNode;
 import syntax.decl.BType;
-import syntax.exp.multi.MulExp;
 import syntax.func.FuncDef;
-import syntax.func.FuncType;
 
 import java.util.LinkedList;
 
@@ -41,6 +39,7 @@ public class UnaryExp implements SyntaxNode {
             FuncCall call = (FuncCall) unit;
             if (state.containsFunc(call.getFuncName())) {
                 FuncDef def = state.getFunc(call.getFuncName());
+                //TODO 检查符号表直接得到维度
                 if (def.getType().equals(TokenCategory.INT)) {
                     return BType.INT;
                 } else {
@@ -54,7 +53,7 @@ public class UnaryExp implements SyntaxNode {
             if (unit instanceof Number) {
                 return BType.INT;
             } else if (unit instanceof LVal) {
-                return ((LVal) unit).getBtype();
+                return ((LVal) unit).getBtype(state);
             } else {
                 return ((SubExp) unit).getExp().getExpType(state);
             }

@@ -5,8 +5,6 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
-import symbol.SymTable;
-import symbol.Symbol;
 import syntax.BlockItem;
 
 import java.util.Iterator;
@@ -50,14 +48,7 @@ public class Decl implements BlockItem {
     }
     
     public void analyse(AnalysisState state) {
-        SymTable symTable = state.getSymTable();
         for (Def def : this.defs) {
-            String name = def.getName().getName();
-            if (symTable.contains(name, false)) {
-                state.addError(new Error(def.getName().getLine(), ErrorType.REDEFINED_IDENT));
-            } else {
-                symTable.add(new Symbol(name, isConst()));
-            }
             //TODO 重复定义的是否还要检查括号匹配?
             def.analyse(state);
         }

@@ -169,9 +169,25 @@ public class StmtParser extends Parser {
             return new ReturnStmt(returnSym, first);
         } else {
             previous();
-            Exp exp = new ExpParser(getTokenIterator()).parseExp();
-            Token semicolon = getSpecialToken(TokenCategory.SEMICN);
-            return new ReturnStmt(returnSym, exp, semicolon);
+            if (first.getType().equals(TokenCategory.IDENT) ||
+                    first.getType().equals(TokenCategory.INTCONST) ||
+                    first.getType().equals(TokenCategory.L_PARENT) ||
+                    first.getType().equals(TokenCategory.PLUS) ||
+                    first.getType().equals(TokenCategory.MINUS) ||
+                    first.getType().equals(TokenCategory.NOT)) {
+                int curIndex = getTokenIterator().nextIndex();
+                Exp exp = new ExpParser(getTokenIterator()).parseExp();
+                first = getSpecialToken(TokenCategory.ASSIGN);
+                //可能会出现return 赋值语句=xxx;的情况，此时return为缺少';'
+                if (first != null) {
+                    back2Point(curIndex);
+                    return new ReturnStmt(returnSym, null);
+                }
+                Token semicolon = getSpecialToken(TokenCategory.SEMICN);
+                return new ReturnStmt(returnSym, exp, semicolon);
+            } else {
+                return new ReturnStmt(returnSym, null);
+            }
         }
     }
     

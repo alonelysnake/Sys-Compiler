@@ -14,6 +14,7 @@ public class AnalysisState {
     private final ErrorTable errorTable;//错误表
     private FuncDef curFunc;//是否在处理函数
     private int loopDepth = 0;
+    private boolean funcCreateSymTable = false;//函数创建了symtable
     
     //TODO 是否要求函数的声明顺序?即前面的函数不能调用后面的
     private final HashMap<String, FuncDef> funcs;//所有声明了的函数
@@ -72,8 +73,13 @@ public class AnalysisState {
         this.curFunc = func;
     }
     
-    public boolean isInFunc() {
+    public boolean hasCreateSymTable() {
         return curFunc != null;
+    }
+    
+    public void funcCreateSymTable() {
+        pushSymTable();
+        this.funcCreateSymTable = true;
     }
     
     public FuncDef getCurFunc() {
@@ -89,7 +95,11 @@ public class AnalysisState {
         curSymTable = curSymTable.getParent();
     }
     
-    public void pushSymTable(SymTable newTable) {
-        curSymTable = newTable;
+    public void pushSymTable() {
+        if (funcCreateSymTable) {
+            funcCreateSymTable = false;
+        } else {
+            curSymTable = new SymTable(curSymTable);
+        }
     }
 }

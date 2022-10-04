@@ -22,6 +22,12 @@ public class Parser {
         return tokenIterator;
     }
     
+    public void back2Point(int index) {
+        while (tokenIterator.nextIndex() != index) {
+            tokenIterator.previous();
+        }
+    }
+    
     protected Token getNext() {
         if (hasNext()) {
             return tokenIterator.next();

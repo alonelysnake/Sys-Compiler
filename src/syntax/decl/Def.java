@@ -50,7 +50,7 @@ public class Def implements SyntaxNode {
     
     public int getMaxLine() {
         if (val == null) {
-            if (dimensions == null || dimensions.size() == 0) {
+            if (dimensions.isEmpty()) {
                 return name.getLine();
             }
             return dimensions.getLast().getMaxLine();
@@ -62,9 +62,9 @@ public class Def implements SyntaxNode {
     public void analyse(AnalysisState state) {
         SymTable symTable = state.getSymTable();
         if (symTable.contains(name.getName(), false)) {
-            symTable.add(new Symbol(name.getName(), constFlag));
-        } else {
             state.addError(new Error(name.getLine(), ErrorType.REDEFINED_IDENT));
+        } else {
+            symTable.add(new Symbol(name.getName(), constFlag, dimensions.size()));
         }
         dimensions.forEach(dim -> dim.analyse(state));
     }

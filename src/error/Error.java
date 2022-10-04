@@ -1,6 +1,6 @@
 package error;
 
-public class Error {
+public class Error implements Comparable<Error> {
     private final int line;
     private final ErrorType type;
     
@@ -12,5 +12,10 @@ public class Error {
     @Override
     public String toString() {
         return line + " " + type.getErrorCode() + "\n";
+    }
+    
+    @Override
+    public int compareTo(Error o) {
+        return line - o.line;
     }
 }

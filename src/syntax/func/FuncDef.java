@@ -6,7 +6,6 @@ import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
 import lexer.token.TokenCategory;
-import symbol.SymTable;
 import syntax.SyntaxNode;
 import syntax.stmt.multi.Block;
 
@@ -70,11 +69,10 @@ public class FuncDef implements SyntaxNode {
         //函数名重定义
         if (!state.addFunc(this)) {
             state.addError(new Error(name.getLine(), ErrorType.REDEFINED_IDENT));
-        } else {
-            state.addFunc(this);
         }
         // 栈顶放入符号表并处理形参
-        state.pushSymTable(new SymTable(state.getSymTable()));
+        state.funcCreateSymTable();
+        
         if (params != null) {
             params.analyse(state);
         }

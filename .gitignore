@@ -9,3 +9,5 @@ gen
 *.txt
 *.rar
 *.md
+*.png
+*.gitignore

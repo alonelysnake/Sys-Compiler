@@ -4,6 +4,7 @@ import error.AnalysisState;
 import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
+import symbol.Symbol;
 import syntax.decl.BType;
 
 import java.util.LinkedList;
@@ -56,17 +57,38 @@ public class LVal implements PrimaryUnit {
         return dimensions.size();
     }
     
-    public BType getBtype() {
-        if (dimensions == null) {
-            return BType.INT;
-        } else if (dimensions.size() == 1) {
-            return BType.ARR;
-        } else if (dimensions.size() == 2) {
-            return BType.MAT;
-        } else {
-            System.err.println("LVal-getBType()：出现二维以上的数组");
+    public BType getBtype(AnalysisState state) {
+        Symbol symbol = state.getSymTable().get(name.getName());
+        if (symbol == null) {
+            System.err.println("LVal-getType()：变量初始化时有问题");
             return null;
         }
+        BType initType = symbol.getType();
+        if (initType == BType.MAT) {
+            if (dimensions.isEmpty()) {
+                return BType.MAT;
+            } else if (dimensions.size() == 1) {
+                return BType.ARR;
+            } else if (dimensions.size() == 2) {
+                return BType.INT;
+            } else {
+                System.err.println("LVal-getBType()：出现二维以上的数组" + dimensions.size());
+                return null;
+            }
+        } else if (initType == BType.ARR) {
+            if (dimensions.isEmpty()) {
+                return BType.ARR;
+            } else if (dimensions.size() == 1) {
+                return BType.INT;
+            } else {
+                System.err.println("LVal-getBType()：出现二维以上的数组" + dimensions.size());
+                return null;
+            }
+        } else if (initType == BType.INT) {
+            return BType.INT;
+        }
+        System.err.println("LVal-getType()：变量初始化时有问题");
+        return null;
     }
     
     public void analyse(AnalysisState state) {

@@ -1,19 +1,19 @@
 package error;
 
-import java.util.LinkedList;
+import java.util.TreeSet;
 
 public class ErrorTable {
     /**
      * 存储所有错误
      */
     
-    private final LinkedList<Error> errors;
+    private final TreeSet<Error> errors;
     
     public ErrorTable() {
-        errors = new LinkedList<>();
+        errors = new TreeSet<>();
     }
     
-    public LinkedList<Error> getErrors() {
+    public TreeSet<Error> getErrors() {
         return errors;
     }
     
@@ -22,6 +22,6 @@ public class ErrorTable {
     }
     
     public void add(Error error) {
-        errors.addLast(error);
+        errors.add(error);
     }
 }

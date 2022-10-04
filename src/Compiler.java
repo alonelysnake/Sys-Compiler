@@ -24,13 +24,13 @@ public class Compiler {
         
         CompUnitParser parser = new CompUnitParser(tokens);
         CompUnit unit = parser.parseCompUnit();
-        FileIO.writeParser(outputFile, unit);
+        //FileIO.writeParser(outputFile, unit);
         
         AnalysisState state = new AnalysisState();
         unit.analyse(state);
         if (!state.getErrorTable().isEmpty()) {
             FileIO.writeError(errFile, state.getErrorTable());
-            System.exit(1);
+            //System.exit(1);
         }
     }
 }
