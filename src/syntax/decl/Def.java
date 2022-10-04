@@ -50,7 +50,7 @@ public class Def implements SyntaxNode {
     
     public int getMaxLine() {
         if (val == null) {
-            if (dimensions == null) {
+            if (dimensions == null || dimensions.size() == 0) {
                 return name.getLine();
             }
             return dimensions.getLast().getMaxLine();

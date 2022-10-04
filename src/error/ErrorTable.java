@@ -17,6 +17,10 @@ public class ErrorTable {
         return errors;
     }
     
+    public boolean isEmpty() {
+        return errors.isEmpty();
+    }
+    
     public void add(Error error) {
         errors.addLast(error);
     }

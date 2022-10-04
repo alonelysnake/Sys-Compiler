@@ -6,6 +6,7 @@ import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
 import symbol.SymTable;
+import symbol.Symbol;
 import syntax.SyntaxNode;
 import syntax.decl.BType;
 import syntax.exp.unary.Dimension;
@@ -83,6 +84,8 @@ public class FuncFParam implements SyntaxNode {
         SymTable symTable = state.getSymTable();
         if (symTable.contains(name.getName(), false)) {
             state.addError(new Error(name.getLine(), ErrorType.REDEFINED_IDENT));
+        } else {
+            symTable.add(new Symbol(name.getName(), false));
         }
         if (followDimensions != null) {
             for (Dimension dim : followDimensions) {

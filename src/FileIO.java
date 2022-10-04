@@ -1,3 +1,5 @@
+import error.Error;
+import error.ErrorTable;
 import lexer.token.Token;
 import syntax.CompUnit;
 
@@ -17,7 +19,7 @@ public class FileIO {
         StringBuilder ans = new StringBuilder();
         try {
             BufferedReader br = new BufferedReader(new FileReader(filepath));
-            String s = null;
+            String s;
             while ((s = br.readLine()) != null) {
                 ans.append(s);
                 ans.append("\n");
@@ -45,6 +47,18 @@ public class FileIO {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
             bw.write(compUnit.toString());
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void writeError(String filepath, ErrorTable table) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
+            for (Error error : table.getErrors()) {
+                bw.write(error.toString());
+            }
             bw.close();
         } catch (IOException e) {
             e.printStackTrace();

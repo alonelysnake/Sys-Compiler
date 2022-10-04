@@ -1,3 +1,4 @@
+import error.AnalysisState;
 import lexer.Lexer;
 import lexer.token.Token;
 import syntax.CompUnit;
@@ -9,6 +10,7 @@ public class Compiler {
     public static void main(String[] args) {
         String inputfile;
         String outputFile;
+        String errFile = "error.txt";
         if (args.length > 0) {
             inputfile = args[1];
             outputFile = args[3];
@@ -20,11 +22,15 @@ public class Compiler {
         
         LinkedList<Token> tokens = lexer.tackle();
         
-        //FileIO.writeLexer(outputFile, tokens);
         CompUnitParser parser = new CompUnitParser(tokens);
         CompUnit unit = parser.parseCompUnit();
         FileIO.writeParser(outputFile, unit);
         
-        //System.out.print(unit);
+        AnalysisState state = new AnalysisState();
+        unit.analyse(state);
+        if (!state.getErrorTable().isEmpty()) {
+            FileIO.writeError(errFile, state.getErrorTable());
+            System.exit(1);
+        }
     }
 }

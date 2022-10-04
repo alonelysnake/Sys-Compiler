@@ -41,7 +41,7 @@ public class Block implements MultiStmt {
         //return检查
         FuncDef func = state.getCurFunc();
         if (state.isGlobal() && (func == null || func.getType().equals(TokenCategory.INT))) {
-            if (!(items.getLast() instanceof Stmt)) {
+            if (items.isEmpty() || !(items.getLast() instanceof Stmt)) {
                 state.addError(new Error(rightBrace.getLine(), ErrorType.LACK_RETURN));
             } else {
                 Stmt lastStmt = (Stmt) items.getLast();

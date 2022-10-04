@@ -51,7 +51,10 @@ public class OutputStmt extends SingleStmt {
                     continue;
                 }
             } else if (c == '%') {
-                paraNum++;
+                if (i + 1 < format.length() && format.charAt(i + 1) == 'd') {
+                    paraNum++;
+                    continue;
+                }
             }
             state.addError(new Error(str.getLine(), ErrorType.ILLEGAL_CHAR));
             break;

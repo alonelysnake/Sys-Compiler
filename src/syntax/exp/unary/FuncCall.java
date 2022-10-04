@@ -5,7 +5,6 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
-import lexer.token.TokenCategory;
 import syntax.decl.BType;
 import syntax.exp.multi.Exp;
 import syntax.func.FuncDef;
@@ -51,6 +50,7 @@ public class FuncCall implements ExpUnit {
         //检查函数名是否存在
         if (!state.containsFunc(name.getName())) {
             state.addError(new Error(name.getLine(), ErrorType.UNDEFINED_IDENT));
+            return;
         }
         //检查参数个数是否一致
         FuncDef func = state.getFunc(name.getName());

@@ -43,7 +43,7 @@ public class LVal implements PrimaryUnit {
     
     @Override
     public int getMaxLine() {
-        if (dimensions == null) {
+        if (dimensions == null || dimensions.size() == 0) {
             return name.getLine();
         }
         return dimensions.getLast().getMaxLine();

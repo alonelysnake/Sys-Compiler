@@ -44,7 +44,8 @@ public class FuncParser extends Parser {
             rightParent = first;
         } else {
             //既不是'int'也不是'）'
-            System.err.println("自定义函数未读到')'，实为：" + first + "行：" + first.getLine());
+            //System.err.println("自定义函数未读到')'，实为：" + first + "行：" + first.getLine());
+            previous();
         }
         
         first = getNext();
