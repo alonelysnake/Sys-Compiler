@@ -67,6 +67,9 @@ public class Def implements SyntaxNode {
             symTable.add(new Symbol(name.getName(), constFlag, dimensions.size()));
         }
         dimensions.forEach(dim -> dim.analyse(state));
+        if (val != null) {
+            val.analyse(state);
+        }
     }
     
     @Override
