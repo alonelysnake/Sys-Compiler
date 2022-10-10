@@ -61,14 +61,20 @@ public class Def implements SyntaxNode {
     @Override
     public void analyse(AnalysisState state) {
         SymTable symTable = state.getSymTable();
+        boolean hasSame = false;
         if (symTable.contains(name.getName(), false)) {
             state.addError(new Error(name.getLine(), ErrorType.REDEFINED_IDENT));
-        } else {
+            hasSame = true;
+        } /*else {
             symTable.add(new Symbol(name.getName(), constFlag, dimensions.size()));
-        }
+        }*/
         dimensions.forEach(dim -> dim.analyse(state));
         if (val != null) {
             val.analyse(state);
+        }
+        // 防止出现 int a = a; 的情况
+        if (!hasSame) {
+            symTable.add(new Symbol(name.getName(), constFlag, dimensions.size()));
         }
     }
     

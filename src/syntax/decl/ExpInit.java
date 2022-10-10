@@ -3,6 +3,8 @@ package syntax.decl;
 import error.AnalysisState;
 import syntax.exp.multi.Exp;
 
+import java.util.ArrayList;
+
 public class ExpInit implements InitVal {
     private final boolean constFlag;
     private final Exp exp;
@@ -25,6 +27,13 @@ public class ExpInit implements InitVal {
     @Override
     public void analyse(AnalysisState state) {
         exp.analyse(state);
+    }
+    
+    @Override
+    public ArrayList<Exp> getInitVals() {
+        ArrayList<Exp> ret = new ArrayList<>();
+        ret.add(exp);
+        return ret;
     }
     
     @Override

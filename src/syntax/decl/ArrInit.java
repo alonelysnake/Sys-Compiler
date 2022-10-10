@@ -2,7 +2,9 @@ package syntax.decl;
 
 import error.AnalysisState;
 import lexer.token.Token;
+import syntax.exp.multi.Exp;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -45,6 +47,14 @@ public class ArrInit implements InitVal {
         if (vals != null) {
             vals.forEach(val -> val.analyse(state));
         }
+    }
+    
+    public ArrayList<Exp> getInitVals() {
+        ArrayList<Exp> ret = new ArrayList<>();
+        for (InitVal initVal : this.vals) {
+            ret.addAll(initVal.getInitVals());
+        }
+        return ret;
     }
     
     @Override
