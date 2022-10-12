@@ -3,9 +3,14 @@ package syntax.exp.multi;
 import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
+import lexer.token.TokenCategory;
+import middle.BlockInfo;
+import middle.MiddleState;
+import symbol.SymTable;
 import syntax.decl.BType;
 import syntax.exp.unary.ExpUnit;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class AddExp extends ExpList<MulExp> {
@@ -35,6 +40,26 @@ public class AddExp extends ExpList<MulExp> {
             return null;
         }
         return type;
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
+    }
+    
+    public int calConst(SymTable symTable) {
+        Iterator<MulExp> mult = getUnits().iterator();
+        Iterator<Token> op = getOps().iterator();
+        int ans = mult.next().calConst(symTable);
+        while (mult.hasNext()) {
+            if (op.next().getType().equals(TokenCategory.PLUS)) {
+                ans += mult.next().calConst(symTable);
+            } else {
+                ans -= mult.next().calConst(symTable);
+            }
+        }
+        return ans;
     }
     
     @Override

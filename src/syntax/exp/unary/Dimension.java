@@ -5,11 +5,15 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
+import symbol.SymTable;
+import syntax.SyntaxNode;
 import syntax.exp.multi.Exp;
 
 import java.util.LinkedList;
 
-public class Dimension {
+public class Dimension implements SyntaxNode {
     /**
      * 数组维度
      * '[' + exp/constexp + ']'
@@ -51,6 +55,7 @@ public class Dimension {
         return rightBracket != null;
     }
     
+    @Override
     public void analyse(AnalysisState state) {
         if (exp != null) {
             exp.analyse(state);
@@ -62,6 +67,20 @@ public class Dimension {
                 state.addError(new Error(exp.getMaxLine(), ErrorType.LACK_R_BRACKET));
             }
         }
+    }
+    
+    public int calConst(SymTable symTable) {
+        if (exp == null) {
+            System.err.println("计算常量数组维度出现空");
+            return 0;
+        }
+        return exp.calConst(symTable);
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

@@ -2,6 +2,9 @@ package syntax.exp.unary;
 
 import error.AnalysisState;
 import lexer.token.Ident;
+import middle.BlockInfo;
+import middle.MiddleState;
+import symbol.SymTable;
 
 import java.util.LinkedList;
 
@@ -42,6 +45,16 @@ public class PrimaryExp implements ExpUnit {
     @Override
     public void analyse(AnalysisState state) {
         unit.analyse(state);
+    }
+    
+    public int calConst(SymTable symTable) {
+        return unit.calConst(symTable);
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

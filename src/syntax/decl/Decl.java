@@ -5,6 +5,8 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.BlockItem;
 
 import java.util.Iterator;
@@ -55,6 +57,12 @@ public class Decl implements BlockItem {
         if (semicolon == null) {
             state.addError(new Error(defs.getLast().getMaxLine(), ErrorType.LACK_SEMICOLON));
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

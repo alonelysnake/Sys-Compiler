@@ -4,6 +4,8 @@ import error.AnalysisState;
 import error.Error;
 import error.ErrorType;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 
 public class BreakStmt extends SingleStmt {
     private final Token breakSym;
@@ -21,6 +23,12 @@ public class BreakStmt extends SingleStmt {
         if (!hasSemicolon()) {
             state.addError(new Error(breakSym.getLine(), ErrorType.LACK_SEMICOLON));//break一定存在且为分号前一个
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

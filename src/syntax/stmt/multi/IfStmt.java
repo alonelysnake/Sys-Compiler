@@ -2,6 +2,8 @@ package syntax.stmt.multi;
 
 import error.AnalysisState;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.exp.multi.Cond;
 import syntax.stmt.Stmt;
 
@@ -35,6 +37,12 @@ public class IfStmt extends JudgeStmt {
         if (elseStmt != null) {
             elseStmt.analyse(state);
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

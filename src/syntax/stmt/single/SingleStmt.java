@@ -1,9 +1,9 @@
 package syntax.stmt.single;
 
 import error.AnalysisState;
-import error.Error;
 import lexer.token.Token;
-import syntax.BlockItem;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.SyntaxNode;
 
 public class SingleStmt implements SyntaxNode {
@@ -26,6 +26,11 @@ public class SingleStmt implements SyntaxNode {
     
     @Override
     public void analyse(AnalysisState state) {
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        return null;
     }
     
     @Override

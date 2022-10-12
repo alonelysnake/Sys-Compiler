@@ -39,6 +39,10 @@ public abstract class ExpList<T> implements SyntaxNode {
         return units.getFirst();
     }
     
+    public LinkedList<Token> getOps() {
+        return ops;
+    }
+    
     public LinkedList<T> getUnits() {
         return units;
     }

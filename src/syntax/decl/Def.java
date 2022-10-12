@@ -5,6 +5,8 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import symbol.SymTable;
 import symbol.Symbol;
 import syntax.SyntaxNode;
@@ -73,9 +75,34 @@ public class Def implements SyntaxNode {
             val.analyse(state);
         }
         // 防止出现 int a = a; 的情况
+        Symbol symbol = new Symbol(name.getName(), constFlag, dimensions.size());
+        //测试用，删了
+//        ArrayList<Integer> dimLen = new ArrayList<>();
+//        for (Dimension dim : dimensions) {
+//            dimLen.add(dim.calConst(symTable));
+//        }
+//        ArrayList<Exp> inits = val.getInitVals();
+//        symbol.setInit(dimLen, inits);
+//        if (constFlag) {
+//            ArrayList<Integer> cons = new ArrayList<>();
+//            for (Exp init : inits) {
+//                int con = init.calConst(symTable);
+//                cons.add(con);
+//            }
+//            System.err.println("常量" + name.getName() + "值为：" + cons);
+//            System.err.println("常量" + name.getName() + "维度为：" + dimLen);
+//            symbol.setConstVals(cons);
+//        }
+        //删除结束
         if (!hasSame) {
-            symTable.add(new Symbol(name.getName(), constFlag, dimensions.size()));
+            symTable.add(symbol);
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO 注意简化dimension
+        return null;
     }
     
     @Override

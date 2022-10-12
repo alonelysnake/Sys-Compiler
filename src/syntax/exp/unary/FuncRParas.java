@@ -3,6 +3,8 @@ package syntax.exp.unary;
 import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.SyntaxNode;
 import syntax.exp.multi.Exp;
 
@@ -46,6 +48,12 @@ public class FuncRParas implements SyntaxNode {
         for (Exp exp : paras) {
             exp.analyse(state);
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

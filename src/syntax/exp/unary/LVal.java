@@ -4,9 +4,13 @@ import error.AnalysisState;
 import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
+import middle.BlockInfo;
+import middle.MiddleState;
+import symbol.SymTable;
 import symbol.Symbol;
 import syntax.decl.BType;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class LVal implements PrimaryUnit {
@@ -100,6 +104,23 @@ public class LVal implements PrimaryUnit {
         for (Dimension dim : dimensions) {
             dim.analyse(state);
         }
+    }
+    
+    public int calConst(SymTable symTable) {
+        Symbol symbol = symTable.get(name.getName());
+        ArrayList<Integer> dims = new ArrayList<>();
+        if (!dimensions.isEmpty()) {
+            for (Dimension dimension : dimensions) {
+                dims.add(dimension.calConst(symTable));
+            }
+        }
+        return symbol.getConstVal(dims);
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

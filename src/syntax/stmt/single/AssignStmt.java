@@ -4,6 +4,8 @@ import error.AnalysisState;
 import error.Error;
 import error.ErrorType;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import symbol.SymTable;
 import symbol.Symbol;
 import syntax.exp.multi.Exp;
@@ -41,6 +43,12 @@ public class AssignStmt extends SingleStmt {
         if (!hasSemicolon()) {
             state.addError(new Error(exp.getMaxLine(), ErrorType.LACK_SEMICOLON));
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

@@ -2,6 +2,8 @@ package syntax.decl;
 
 import error.AnalysisState;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.exp.multi.Exp;
 
 import java.util.ArrayList;
@@ -47,6 +49,12 @@ public class ArrInit implements InitVal {
         if (vals != null) {
             vals.forEach(val -> val.analyse(state));
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     public ArrayList<Exp> getInitVals() {

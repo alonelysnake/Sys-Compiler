@@ -2,6 +2,8 @@ package syntax.stmt.multi;
 
 import error.AnalysisState;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.exp.multi.Cond;
 import syntax.stmt.Stmt;
 
@@ -19,6 +21,12 @@ public class WhileStmt extends JudgeStmt {
         state.getInLoop();
         super.analyse(state);
         state.getOutLoop();
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

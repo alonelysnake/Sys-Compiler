@@ -4,6 +4,8 @@ import error.AnalysisState;
 import error.Error;
 import error.ErrorType;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import symbol.SymTable;
 import symbol.Symbol;
 import syntax.exp.unary.LVal;
@@ -53,6 +55,12 @@ public class InputStmt extends SingleStmt {
                 state.addError(new Error(rightParent.getLine(), ErrorType.LACK_SEMICOLON));
             }
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

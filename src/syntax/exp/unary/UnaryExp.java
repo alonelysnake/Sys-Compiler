@@ -4,6 +4,9 @@ import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
 import lexer.token.TokenCategory;
+import middle.BlockInfo;
+import middle.MiddleState;
+import symbol.SymTable;
 import syntax.SyntaxNode;
 import syntax.decl.BType;
 import syntax.func.FuncDef;
@@ -63,6 +66,21 @@ public class UnaryExp implements SyntaxNode {
     @Override
     public void analyse(AnalysisState state) {
         this.unit.analyse(state);
+    }
+    
+    public int calConst(SymTable symTable) {
+        if (unit instanceof FuncCall) {
+            System.err.println("常量出现funccall");
+            return 0;
+        }
+        PrimaryExp exp = (PrimaryExp) unit;
+        return exp.calConst(symTable);
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

@@ -7,7 +7,7 @@ import lexer.token.Token;
 import syntax.exp.multi.Cond;
 import syntax.stmt.Stmt;
 
-public class JudgeStmt implements MultiStmt {
+public abstract class JudgeStmt implements MultiStmt {
     private final Token leftParent;
     private final Cond condExp;
     private final Token rightParent;

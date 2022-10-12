@@ -5,6 +5,8 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import symbol.SymTable;
 import symbol.Symbol;
 import syntax.SyntaxNode;
@@ -95,6 +97,12 @@ public class FuncFParam implements SyntaxNode {
                 dim.analyse(state);
             }
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

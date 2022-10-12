@@ -1,6 +1,8 @@
 package syntax.decl;
 
 import error.AnalysisState;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.exp.multi.Exp;
 
 import java.util.ArrayList;
@@ -34,6 +36,12 @@ public class ExpInit implements InitVal {
         ArrayList<Exp> ret = new ArrayList<>();
         ret.add(exp);
         return ret;
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

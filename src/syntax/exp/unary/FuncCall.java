@@ -5,6 +5,8 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.decl.BType;
 import syntax.exp.multi.Exp;
 import syntax.func.FuncDef;
@@ -73,7 +75,6 @@ public class FuncCall implements ExpUnit {
             }
         }
         
-        
         //检查右括号
         if (rightParent == null) {
             if (paras == null) {
@@ -82,6 +83,12 @@ public class FuncCall implements ExpUnit {
                 state.addError(new Error(paras.getMaxLine(), ErrorType.LACK_R_PARENT));
             }
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     public String getFuncName() {

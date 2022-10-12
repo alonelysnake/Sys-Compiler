@@ -6,6 +6,8 @@ import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
 import lexer.token.TokenCategory;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.SyntaxNode;
 import syntax.stmt.multi.Block;
 
@@ -88,6 +90,12 @@ public class FuncDef implements SyntaxNode {
         content.analyse(state);
         //完成自定义函数处理
         state.setCurFunc(null);
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     public TokenCategory getType() {

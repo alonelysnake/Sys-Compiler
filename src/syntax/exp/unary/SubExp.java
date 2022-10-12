@@ -5,6 +5,9 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
+import symbol.SymTable;
 import syntax.exp.multi.Exp;
 
 import java.util.LinkedList;
@@ -44,6 +47,16 @@ public class SubExp implements PrimaryUnit {
         if (rightParent == null) {
             state.addError(new Error(exp.getMaxLine(), ErrorType.LACK_R_PARENT));
         }
+    }
+    
+    public int calConst(SymTable symTable) {
+        return exp.calConst(symTable);
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

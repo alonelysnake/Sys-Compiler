@@ -5,6 +5,8 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Token;
 import lexer.token.TokenCategory;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.exp.multi.Exp;
 
 public class ReturnStmt extends SingleStmt {
@@ -41,6 +43,12 @@ public class ReturnStmt extends SingleStmt {
                 state.addError(new Error(exp.getMaxLine(), ErrorType.LACK_SEMICOLON));
             }
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

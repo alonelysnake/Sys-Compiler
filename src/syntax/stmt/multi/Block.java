@@ -5,6 +5,8 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.Token;
 import lexer.token.TokenCategory;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.BlockItem;
 import syntax.func.FuncDef;
 import syntax.stmt.Stmt;
@@ -46,6 +48,12 @@ public class Block implements MultiStmt {
                 }
             }
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO 注意函数和非函数
+        return null;
     }
     
     @Override

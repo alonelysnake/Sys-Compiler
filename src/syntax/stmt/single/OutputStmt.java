@@ -5,6 +5,8 @@ import error.Error;
 import error.ErrorType;
 import lexer.token.FormatString;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.exp.multi.Exp;
 
 import java.util.Iterator;
@@ -83,6 +85,12 @@ public class OutputStmt extends SingleStmt {
                 state.addError(new Error(rightParent.getLine(), ErrorType.LACK_SEMICOLON));
             }
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

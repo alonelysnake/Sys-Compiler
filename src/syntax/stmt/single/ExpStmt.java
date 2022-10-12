@@ -2,6 +2,8 @@ package syntax.stmt.single;
 
 import error.AnalysisState;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.exp.multi.Exp;
 
 public class ExpStmt extends SingleStmt {
@@ -15,6 +17,12 @@ public class ExpStmt extends SingleStmt {
     @Override
     public void analyse(AnalysisState state) {
         exp.analyse(state);
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

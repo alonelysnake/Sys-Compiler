@@ -3,6 +3,8 @@ package syntax.func;
 import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.SyntaxNode;
 
 import java.util.Iterator;
@@ -40,6 +42,12 @@ public class FuncFParams implements SyntaxNode {
     public void analyse(AnalysisState state) {
         //此时已经进入自定义函数体的栈符号表中
         paras.forEach(para -> para.analyse(state));
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     @Override

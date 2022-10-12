@@ -2,6 +2,8 @@ package syntax.stmt;
 
 import error.AnalysisState;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
 import syntax.BlockItem;
 import syntax.stmt.multi.MultiStmt;
 import syntax.stmt.single.SingleStmt;
@@ -42,6 +44,12 @@ public class Stmt implements BlockItem {
         } else {
             single.analyse(state);
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        //TODO
+        return null;
     }
     
     public SingleStmt getSingle() {
