@@ -3,11 +3,21 @@ package syntax.exp.multi;
 import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
+import lexer.token.TokenCategory;
+import middle.BlockInfo;
+import middle.MiddleState;
+import middle.instruction.BinaryOp;
+import middle.instruction.INode;
+import middle.val.Value;
+import middle.val.Variable;
 import syntax.SyntaxNode;
 import syntax.exp.unary.UnaryExp;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
 public abstract class ExpList<T> implements SyntaxNode {
     /**
@@ -16,6 +26,25 @@ public abstract class ExpList<T> implements SyntaxNode {
     private final LinkedList<Token> ops;
     private final LinkedList<T> units;
     private final String className;
+    
+    private static final Map<TokenCategory, BinaryOp.Operator> token2BinaryOp =
+            Collections.unmodifiableMap(new HashMap<TokenCategory, BinaryOp.Operator>() {
+                {
+                    put(TokenCategory.PLUS, BinaryOp.Operator.ADD);
+                    put(TokenCategory.MINUS, BinaryOp.Operator.SUB);
+                    put(TokenCategory.MULT, BinaryOp.Operator.MULT);
+                    put(TokenCategory.DIV, BinaryOp.Operator.DIV);
+                    put(TokenCategory.MOD, BinaryOp.Operator.MOD);
+                    put(TokenCategory.AND, BinaryOp.Operator.AND);
+                    put(TokenCategory.OR, BinaryOp.Operator.OR);
+                    put(TokenCategory.EQ, BinaryOp.Operator.EQ);
+                    put(TokenCategory.NEQ, BinaryOp.Operator.NEQ);
+                    put(TokenCategory.GT, BinaryOp.Operator.GT);
+                    put(TokenCategory.GE, BinaryOp.Operator.GE);
+                    put(TokenCategory.LT, BinaryOp.Operator.LT);
+                    put(TokenCategory.LE, BinaryOp.Operator.LE);
+                }
+            });
     
     public ExpList(LinkedList<Token> ops, LinkedList<T> units, String name) {
         this.ops = ops;
@@ -69,6 +98,30 @@ public abstract class ExpList<T> implements SyntaxNode {
                 return;
             }
         }
+    }
+    
+    @Override
+    public BlockInfo generateIcode(MiddleState state) {
+        Iterator<T> unitIterator = getUnits().iterator();
+        Iterator<Token> opIterator = getOps().iterator();
+        
+        BlockInfo unitBlock = ((SyntaxNode) unitIterator.next()).generateIcode(state);
+        INode first = unitBlock.getFirst();
+        INode last = unitBlock.getLast();
+        Value val = unitBlock.getRetVal();
+        
+        while (unitIterator.hasNext()) {
+            Token op = opIterator.next();
+            T unit = unitIterator.next();
+            BinaryOp.Operator binaryOp = token2BinaryOp.get(op);//保证存在
+            unitBlock = ((SyntaxNode) unit).generateIcode(state);
+            last = last.insert(unitBlock.getFirst());
+            Variable newVar = new Variable(String.valueOf(MiddleState.tmpCnt++));
+            BinaryOp binaryCode = new BinaryOp(newVar, binaryOp, val, unitBlock.getRetVal());
+            last = last.insert(binaryCode);
+            val = newVar;
+        }
+        return new BlockInfo(val, first, last);
     }
     
     @Override

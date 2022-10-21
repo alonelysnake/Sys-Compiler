@@ -7,6 +7,8 @@ import lexer.token.Token;
 import lexer.token.TokenCategory;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.INode;
+import middle.instruction.Return;
 import syntax.exp.multi.Exp;
 
 public class ReturnStmt extends SingleStmt {
@@ -47,8 +49,17 @@ public class ReturnStmt extends SingleStmt {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        if (exp == null) {
+            INode last = new Return();
+            return new BlockInfo(null, last, last);
+        } else {
+            BlockInfo ret = exp.generateIcode(state);
+            INode returnNode = new Return(ret.getRetVal());
+            INode first = ret.getFirst();
+            INode last = ret.getLast();
+            last = last.insert(returnNode);
+            return new BlockInfo(null, first, last);
+        }
     }
     
     @Override

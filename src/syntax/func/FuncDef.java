@@ -8,6 +8,9 @@ import lexer.token.Token;
 import lexer.token.TokenCategory;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.FuncEntry;
+import middle.instruction.INode;
+import middle.instruction.Return;
 import syntax.SyntaxNode;
 import syntax.stmt.multi.Block;
 
@@ -94,8 +97,21 @@ public class FuncDef implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        INode first = new FuncEntry(name.getName(), getParaNum());
+        state.getLabelTable().connect(name.getName(), first);
+        INode last = first;
+        state.inBlock();
+        if (params != null) {
+            BlockInfo paramsNode = params.generateIcode(state);
+            last = last.insert(paramsNode.getFirst());
+        }
+        BlockInfo body = content.generateIcode(state);
+        last = last.insert(body.getFirst());
+        // 返回int的保证最后有return
+        if (returnType.getType().getType().equals(TokenCategory.VOID)) {
+            last = last.insert(new Return());
+        }
+        return new BlockInfo(null, first, last);
     }
     
     public TokenCategory getType() {

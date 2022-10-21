@@ -6,6 +6,7 @@ import error.ErrorType;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.Jump;
 
 public class BreakStmt extends SingleStmt {
     private final Token breakSym;
@@ -27,8 +28,8 @@ public class BreakStmt extends SingleStmt {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        Jump breakJump = new Jump(state.getLoopEnd());
+        return new BlockInfo(null, breakJump, breakJump);
     }
     
     @Override

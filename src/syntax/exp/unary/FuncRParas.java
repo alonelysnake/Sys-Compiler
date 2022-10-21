@@ -5,9 +5,14 @@ import lexer.token.Ident;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.INode;
+import middle.instruction.Nop;
+import middle.instruction.PushParam;
+import middle.val.Value;
 import syntax.SyntaxNode;
 import syntax.exp.multi.Exp;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -52,8 +57,19 @@ public class FuncRParas implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        // 计算所有传参，然后压栈
+        ArrayList<Value> vals = new ArrayList<>();
+        INode first = new Nop();
+        INode last = first;
+        for (int i = paras.size() - 1; i >= 0; i--) {
+            BlockInfo expBlock = paras.get(i).generateIcode(state);
+            last = last.insert(expBlock.getFirst());
+            vals.add(expBlock.getRetVal());
+        }
+        for (Value val : vals) {
+            last = last.insert(new PushParam(val));
+        }
+        return new BlockInfo(null, first, last);
     }
     
     @Override

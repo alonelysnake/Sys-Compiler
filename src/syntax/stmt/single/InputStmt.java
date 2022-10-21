@@ -6,8 +6,16 @@ import error.ErrorType;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.INode;
+import middle.instruction.Input;
+import middle.instruction.Move;
+import middle.instruction.Return;
+import middle.instruction.Save;
+import middle.val.Address;
+import middle.val.Variable;
 import symbol.SymTable;
 import symbol.Symbol;
+import syntax.decl.BType;
 import syntax.exp.unary.LVal;
 
 public class InputStmt extends SingleStmt {
@@ -59,8 +67,27 @@ public class InputStmt extends SingleStmt {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        INode first = new Input();
+        INode last = first;
+        Variable retReg = new Variable(Return.RET_REG);//右值
+        SymTable symTable = state.getSymTable();
+        Symbol leftSymbol = symTable.get(this.lVal.getName().getName());
+        if (leftSymbol.getType().equals(BType.INT)) {
+            // 对非数组变量赋值
+            Variable var = new Variable(leftSymbol.getName() + "#" + leftSymbol.getDepth());
+            INode assignNode = new Move(var, retReg);
+            last = last.insert(assignNode);
+        } else if (leftSymbol.getType().equals(BType.ARR) ||
+                leftSymbol.getType().equals(BType.MAT)) {
+            // 对一维数组a[0]或二维数组a[0][0]赋值
+            BlockInfo addr = lVal.getAddr(state);
+            Save save = new Save((Address) addr.getRetVal(), retReg);
+            last = last.insert(addr.getFirst());
+            last = last.insert(save);
+        } else {
+            System.err.println("input赋值数组维度过高");
+        }
+        return new BlockInfo(null, first, last);
     }
     
     @Override

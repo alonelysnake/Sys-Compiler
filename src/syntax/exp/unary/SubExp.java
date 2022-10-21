@@ -55,8 +55,7 @@ public class SubExp implements PrimaryUnit {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        return exp.generateIcode(state);
     }
     
     @Override

@@ -4,8 +4,6 @@ import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
 import lexer.token.TokenCategory;
-import middle.BlockInfo;
-import middle.MiddleState;
 import symbol.SymTable;
 import syntax.decl.BType;
 import syntax.exp.unary.ExpUnit;
@@ -65,11 +63,5 @@ public class MulExp extends ExpList<UnaryExp> {
         LinkedList<Ident> names = new LinkedList<>();
         getUnits().forEach(unit -> names.addAll(unit.getNames()));
         return names;
-    }
-    
-    @Override
-    public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
     }
 }

@@ -6,6 +6,7 @@ import error.ErrorType;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.Jump;
 
 public class ContinueStmt extends SingleStmt {
     private final Token continueSym;
@@ -27,8 +28,8 @@ public class ContinueStmt extends SingleStmt {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        Jump continueJump = new Jump(state.getLoopStart());
+        return new BlockInfo(null, continueJump, continueJump);
     }
     
     @Override

@@ -7,6 +7,8 @@ import lexer.token.Ident;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.INode;
+import middle.instruction.Nop;
 import syntax.BlockItem;
 
 import java.util.Iterator;
@@ -62,7 +64,13 @@ public class Decl implements BlockItem {
     @Override
     public BlockInfo generateIcode(MiddleState state) {
         //TODO
-        return null;
+        INode last = new Nop();
+        final INode first = last;
+        for (Def def : this.defs) {
+            BlockInfo defBlock = def.generateIcode(state);
+            last = last.insert(defBlock.getFirst());
+        }
+        return new BlockInfo(null, first, last);
     }
     
     @Override

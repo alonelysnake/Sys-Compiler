@@ -4,8 +4,6 @@ import error.AnalysisState;
 import lexer.token.Ident;
 import lexer.token.Token;
 import lexer.token.TokenCategory;
-import middle.BlockInfo;
-import middle.MiddleState;
 import symbol.SymTable;
 import syntax.decl.BType;
 import syntax.exp.unary.ExpUnit;
@@ -40,12 +38,6 @@ public class AddExp extends ExpList<MulExp> {
             return null;
         }
         return type;
-    }
-    
-    @Override
-    public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
     }
     
     public int calConst(SymTable symTable) {

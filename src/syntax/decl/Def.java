@@ -4,14 +4,24 @@ import error.AnalysisState;
 import error.Error;
 import error.ErrorType;
 import lexer.token.Ident;
+import lexer.token.IntConst;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.Definition;
+import middle.instruction.INode;
+import middle.instruction.Nop;
+import middle.val.Address;
+import middle.val.Value;
+import middle.val.Variable;
 import symbol.SymTable;
 import symbol.Symbol;
 import syntax.SyntaxNode;
+import syntax.exp.multi.Exp;
 import syntax.exp.unary.Dimension;
+import syntax.exp.unary.Number;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Def implements SyntaxNode {
@@ -101,8 +111,57 @@ public class Def implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO 注意简化dimension
-        return null;
+        SymTable table = state.getSymTable();
+        Symbol symbol = new Symbol(name.getName(), constFlag, dimensions.size());
+        ArrayList<Integer> dimLen = new ArrayList<>();//符号维度
+        for (Dimension dim : dimensions) {
+            dimLen.add(dim.calConst(table));
+        }
+        ArrayList<Exp> initVals = new ArrayList<>();//符号初值
+        if (val != null) {
+            initVals = val.getInitVals();
+        }
+        symbol.setInit(dimLen, initVals);//设置符号的初值和长度
+        Definition def;
+        ArrayList<Value> middleInitVals = new ArrayList<>();
+        INode last = new Nop();
+        final INode first = last;
+        //常量或变量的初值部分的中间代码
+        // TODO 是否可以考虑递归下降到 initVal 里处理?
+        if (constFlag) {
+            ArrayList<Integer> constVals = new ArrayList<>();
+            for (Exp exp : initVals) {
+                int cons = exp.calConst(table);
+                Number number = new Number(new IntConst(String.valueOf(cons), -1));//临时创建用
+                BlockInfo constLine = number.generateIcode(state);
+                last = last.insert(constLine.getFirst());
+                constVals.add(cons);
+                middleInitVals.add(constLine.getRetVal());
+            }
+            symbol.setConstVals(constVals);//设置常量的初值
+        } else {
+            for (Exp exp : initVals) {
+                BlockInfo expBlock = exp.generateIcode(state);
+                last = last.insert(expBlock.getLast());
+                middleInitVals.add(expBlock.getRetVal());
+            }
+        }
+        table.add(symbol);// 最后添加新定义的变量
+        //符号表相关处理完成，进行最后的中间代码处理
+        if (dimensions.size() == 0) {
+            Variable var = new Variable(name.getName() + "#" + symbol.getDepth());
+            def = new Definition(state.isGlobal(), constFlag, var, 1, middleInitVals);
+        } else {
+            int size = 1;
+            for (int len : dimLen) {
+                size *= len;
+            }
+            Address addr = new Address(name.getName() + "#" + symbol.getDepth());
+            def = new Definition(state.isGlobal(), constFlag, addr, size, middleInitVals);
+        }
+        last = last.insert(def);
+        
+        return new BlockInfo(null, first, last);
     }
     
     @Override

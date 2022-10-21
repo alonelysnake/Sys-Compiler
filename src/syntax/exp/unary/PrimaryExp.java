@@ -53,8 +53,7 @@ public class PrimaryExp implements ExpUnit {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        return unit.generateIcode(state);
     }
     
     @Override

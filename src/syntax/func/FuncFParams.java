@@ -5,6 +5,8 @@ import lexer.token.Ident;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.INode;
+import middle.instruction.Nop;
 import syntax.SyntaxNode;
 
 import java.util.Iterator;
@@ -46,8 +48,12 @@ public class FuncFParams implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        INode first = new Nop();
+        INode last = first;
+        for (FuncFParam para : paras) {
+            last = last.insert(para.generateIcode(state).getFirst());
+        }
+        return new BlockInfo(null, first, last);
     }
     
     @Override

@@ -66,6 +66,10 @@ public class Symbol {
         this.depth = depth;
     }
     
+    public ArrayList<Integer> getDims() {
+        return dims;
+    }
+    
     //在生成中间代码时填写的符号表要确定初值和维度
     public void setInit(ArrayList<Integer> dims, ArrayList<Exp> initVals) {
         this.dims = dims;

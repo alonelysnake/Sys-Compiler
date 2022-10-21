@@ -20,6 +20,14 @@ public abstract class JudgeStmt implements MultiStmt {
         this.mainStmt = mainStmt;
     }
     
+    public Cond getCondExp() {
+        return condExp;
+    }
+    
+    public Stmt getMainStmt() {
+        return mainStmt;
+    }
+    
     @Override
     public void analyse(AnalysisState state) {
         condExp.analyse(state);

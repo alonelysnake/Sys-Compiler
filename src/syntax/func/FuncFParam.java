@@ -7,12 +7,17 @@ import lexer.token.Ident;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.FetchParam;
+import middle.instruction.INode;
+import middle.val.Address;
+import middle.val.Variable;
 import symbol.SymTable;
 import symbol.Symbol;
 import syntax.SyntaxNode;
 import syntax.decl.BType;
 import syntax.exp.unary.Dimension;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class FuncFParam implements SyntaxNode {
@@ -87,7 +92,7 @@ public class FuncFParam implements SyntaxNode {
         if (symTable.contains(name.getName(), false)) {
             state.addError(new Error(name.getLine(), ErrorType.REDEFINED_IDENT));
         } else {
-            symTable.add(new Symbol(name.getName(), false,getDimNum()));
+            symTable.add(new Symbol(name.getName(), false, getDimNum()));
         }
         if (firstDimension != null) {
             firstDimension.analyse(state);
@@ -101,8 +106,22 @@ public class FuncFParam implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        ArrayList<Integer> dimLen = new ArrayList<>();
+        int size = getDimNum();
+        Symbol symbol = new Symbol(name.getName(), false, getDimNum());
+        if (followDimensions != null) {
+            dimLen.add(followDimensions.get(0).calConst(state.getSymTable()));
+        }
+        symbol.setInit(dimLen, new ArrayList<>());
+        INode fetch;
+        if (size == 0) {
+            Variable var = new Variable(name.getName() + "#" + symbol.getDepth());
+            fetch = new FetchParam(var);
+        } else {
+            Address addr = new Address(name.getName() + "#" + symbol.getDepth());
+            fetch = new FetchParam(addr);
+        }
+        return new BlockInfo(null, fetch, fetch);
     }
     
     @Override

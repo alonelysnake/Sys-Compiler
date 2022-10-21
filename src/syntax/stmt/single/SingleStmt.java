@@ -4,6 +4,8 @@ import error.AnalysisState;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.INode;
+import middle.instruction.Nop;
 import syntax.SyntaxNode;
 
 public class SingleStmt implements SyntaxNode {
@@ -30,7 +32,8 @@ public class SingleStmt implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        return null;
+        INode first = new Nop();
+        return new BlockInfo(null, first, first);
     }
     
     @Override

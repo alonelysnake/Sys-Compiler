@@ -21,8 +21,7 @@ public class ExpStmt extends SingleStmt {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        return exp.generateIcode(state);
     }
     
     @Override

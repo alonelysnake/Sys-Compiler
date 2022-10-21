@@ -7,8 +7,14 @@ import lexer.token.FormatString;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.INode;
+import middle.instruction.Nop;
+import middle.instruction.Print;
+import middle.instruction.PushParam;
+import middle.val.Value;
 import syntax.exp.multi.Exp;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -89,8 +95,19 @@ public class OutputStmt extends SingleStmt {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        INode first = new Nop();
+        INode last = first;
+        ArrayList<Value> vals = new ArrayList<>();
+        for (int i = paras.size() - 1; i >= 0; i--) {
+            BlockInfo para = paras.get(i).generateIcode(state);
+            last = last.insert(para.getFirst());
+            vals.add(para.getRetVal());
+        }
+        for (Value val : vals) {
+            last = last.insert(new PushParam(val));
+        }
+        last = last.insert(new Print(this.str.getContent()));
+        return new BlockInfo(null, first, last);
     }
     
     @Override

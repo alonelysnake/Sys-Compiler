@@ -48,8 +48,11 @@ public class Stmt implements BlockItem {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        if (single != null) {
+            return single.generateIcode(state);
+        }
+        assert multi != null;
+        return multi.generateIcode(state);
     }
     
     public SingleStmt getSingle() {

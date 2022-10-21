@@ -45,8 +45,7 @@ public class Exp implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        return exp.generateIcode(state);
     }
     
     public int calConst(SymTable table) {

@@ -79,8 +79,11 @@ public class Dimension implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        if (exp == null) {
+            System.err.println("Dimension: 对无值维度求值");
+            return null;
+        }
+        return exp.generateIcode(state);
     }
     
     @Override

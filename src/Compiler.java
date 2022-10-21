@@ -1,6 +1,9 @@
 import error.AnalysisState;
 import lexer.Lexer;
 import lexer.token.Token;
+import middle.BlockInfo;
+import middle.MiddleState;
+import middle.instruction.INode;
 import syntax.CompUnit;
 import syntax.CompUnitParser;
 
@@ -30,5 +33,12 @@ public class Compiler {
         unit.analyse(state);
         
         FileIO.writeError(errFile, state.getErrorTable());
+        
+        BlockInfo info = unit.generateIcode(new MiddleState());
+        INode first = info.getFirst();
+        while (first != null) {
+            System.out.println(first);
+            first = first.getNext();
+        }
     }
 }

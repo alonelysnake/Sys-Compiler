@@ -13,6 +13,7 @@ public class SymTable {
     
     public SymTable() {
         //全局符号表的初始化，包含全局变量名（是否要包含函数名?）
+        cnt = 0;
         this.symbols = new HashMap<>();
         this.parent = null;
         this.depth = cnt;

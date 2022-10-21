@@ -6,6 +6,8 @@ import error.ErrorType;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.FuncEntry;
+import middle.instruction.INode;
 import syntax.SyntaxNode;
 import syntax.stmt.multi.Block;
 
@@ -36,8 +38,16 @@ public class MainFunc implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        INode first = new FuncEntry("main", 0);
+        state.getLabelTable().connect("main", first);
+        INode last = first;
+        
+        state.inBlock();
+        
+        last = last.insert(content.generateIcode(state).getFirst());
+        
+        state.outBlock();
+        return new BlockInfo(null, first, last);
     }
     
     @Override

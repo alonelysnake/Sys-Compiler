@@ -6,6 +6,10 @@ import lexer.token.Token;
 import lexer.token.TokenCategory;
 import middle.BlockInfo;
 import middle.MiddleState;
+import middle.instruction.INode;
+import middle.instruction.UnaryOp;
+import middle.val.Value;
+import middle.val.Variable;
 import symbol.SymTable;
 import syntax.SyntaxNode;
 import syntax.decl.BType;
@@ -79,8 +83,31 @@ public class UnaryExp implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        //TODO 遍历符号，考虑消除-+-等形式
+        BlockInfo unitBlock = unit.generateIcode(state);
+        INode first = unitBlock.getFirst();
+        INode last = unitBlock.getLast();
+        Value val = unitBlock.getRetVal();
+        for (int i = ops.size() - 1; i >= 0; i--) {
+            Variable newVal = new Variable(String.valueOf(MiddleState.tmpCnt++));
+            INode unaryOp;
+            switch (ops.get(i).getType()) {
+                case PLUS:
+                    MiddleState.tmpCnt--;
+                    break;
+                case MINUS:
+                    unaryOp = new UnaryOp(val, UnaryOp.Operator.NEG, newVal);
+                    last = last.insert(unaryOp);
+                    val = newVal;
+                    break;
+                case NOT:
+                    unaryOp = new UnaryOp(val, UnaryOp.Operator.NOT, newVal);
+                    last = last.insert(unaryOp);
+                    val = newVal;
+                    break;
+            }
+        }
+        return new BlockInfo(val, first, last);
     }
     
     @Override

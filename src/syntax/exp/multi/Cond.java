@@ -23,8 +23,7 @@ public class Cond implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        //TODO
-        return null;
+        return exp.generateIcode(state);
     }
     
     @Override
