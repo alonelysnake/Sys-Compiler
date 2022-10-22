@@ -12,6 +12,6 @@ public class FuncEntry extends INode {
     
     @Override
     public String toString() {
-        return label + ":\nparam num = " + paraNum + "\n";
+        return label + ": param num = " + paraNum + "\n";
     }
 }

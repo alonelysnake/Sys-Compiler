@@ -10,6 +10,6 @@ public class Call extends INode {
     
     @Override
     public String toString() {
-        return "call function" + label + "\n";
+        return "call function " + label + "\n";
     }
 }

@@ -113,7 +113,7 @@ public abstract class ExpList<T> implements SyntaxNode {
         while (unitIterator.hasNext()) {
             Token op = opIterator.next();
             T unit = unitIterator.next();
-            BinaryOp.Operator binaryOp = token2BinaryOp.get(op);//保证存在
+            BinaryOp.Operator binaryOp = token2BinaryOp.get(op.getType());//保证存在
             unitBlock = ((SyntaxNode) unit).generateIcode(state);
             last = last.insert(unitBlock.getFirst());
             Variable newVar = new Variable(String.valueOf(MiddleState.tmpCnt++));
