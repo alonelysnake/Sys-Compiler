@@ -5,11 +5,9 @@ import lexer.token.Token;
 import middle.BlockInfo;
 import middle.LabelTable;
 import middle.MiddleState;
-import middle.instruction.Branch;
 import middle.instruction.INode;
 import middle.instruction.Jump;
 import middle.instruction.Nop;
-import middle.val.Number;
 import syntax.exp.multi.Cond;
 import syntax.stmt.Stmt;
 
@@ -74,10 +72,12 @@ public class IfStmt extends JudgeStmt {
         LabelTable labelTable = state.getLabelTable();
         BlockInfo cond = getCondExp().generateIcode(state);
         INode first = cond.getFirst();
-        INode last = cond.getLast();
+        INode last = cond.getLast();//cond 的最后一条指令是短路成功后跳转到的指令
         String thenEndLabel = labelTable.createLabel(false, false);
-        Branch branch = new Branch(cond.getRetVal(), new Number(0), Branch.Operator.EQ, thenEndLabel);
-        last = last.insert(branch);
+//        Branch branch = new Branch(cond.getRetVal(), new Number(0), Branch.Operator.EQ, thenEndLabel);
+//        last = last.insert(branch);
+        Jump jump = new Jump(thenEndLabel);//cond的倒数第二条语句为所有条件都没满足时可达的，有满足的就跳到最后一句
+        last = last.getPrev().insert(jump).getNext();
         BlockInfo thenBock = getMainStmt().generateIcode(state);
         last = last.insert(thenBock.getFirst());
         INode thenEnd = new Nop();

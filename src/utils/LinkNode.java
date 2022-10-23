@@ -67,7 +67,7 @@ public abstract class LinkNode<T extends LinkNode<T>> {
     public void remove() {
         if (prev != null) {
             if (next != null) {
-                prev.insert(next);
+                prev.setNext(next);
                 next.setPrev(prev);
             } else {
                 prev.setNext(null);
