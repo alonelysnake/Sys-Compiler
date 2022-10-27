@@ -122,13 +122,15 @@ public class Def implements SyntaxNode {
             initVals = val.getInitVals();
         }
         symbol.setInit(dimLen, initVals);//设置符号的初值和长度
+        symbol.setGlobal(state.isGlobal());
         Definition def;
         ArrayList<Value> middleInitVals = new ArrayList<>();
         INode last = new Nop();
         final INode first = last;
         //常量或变量的初值部分的中间代码
         // TODO 是否可以考虑递归下降到 initVal 里处理?
-        if (constFlag) {
+        if (constFlag || state.isGlobal()) {
+            //全局变量和常量都应该有常量初值
             ArrayList<Integer> constVals = new ArrayList<>();
             for (Exp exp : initVals) {
                 int cons = exp.calConst(table);
@@ -142,21 +144,31 @@ public class Def implements SyntaxNode {
         } else {
             for (Exp exp : initVals) {
                 BlockInfo expBlock = exp.generateIcode(state);
-                last = last.insert(expBlock.getLast());
+                last = last.insert(expBlock.getFirst());
                 middleInitVals.add(expBlock.getRetVal());
             }
         }
         table.add(symbol);// 最后添加新定义的变量
         //符号表相关处理完成，进行最后的中间代码处理
         if (dimensions.size() == 0) {
-            Variable var = new Variable(name.getName() + "#" + symbol.getDepth());
+            Variable var;
+            if (symbol.isGlobal()) {
+                var = new Variable("global_" + name.getName() + "#" + symbol.getDepth());
+            } else {
+                var = new Variable(name.getName() + "#" + symbol.getDepth());
+            }
             def = new Definition(state.isGlobal(), constFlag, var, 1, middleInitVals);
         } else {
             int size = 1;
             for (int len : dimLen) {
                 size *= len;
             }
-            Address addr = new Address(name.getName() + "#" + symbol.getDepth());
+            Address addr;
+            if (symbol.isGlobal()) {
+                addr = new Address("global_" + name.getName() + "#" + symbol.getDepth());
+            } else {
+                addr = new Address(name.getName() + "#" + symbol.getDepth());
+            }
             def = new Definition(state.isGlobal(), constFlag, addr, size, middleInitVals);
         }
         last = last.insert(def);

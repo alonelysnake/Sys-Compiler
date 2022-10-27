@@ -134,11 +134,19 @@ public class LVal implements PrimaryUnit {
         INode first = new Nop();
         INode last = first;
         Symbol symbol = state.getSymTable().get(name.getName());
+        
         if (symbol.getType().equals(BType.INT)) {
             //TODO 是否规范为 t1 = a 的形式
-            Variable var = new Variable(name.getName() + "#" + symbol.getDepth());
+            //TODO 全局变量的名字前面增加一个global_，避免重名
+            Variable var;
+            if (symbol.isGlobal()) {
+                var = new Variable("global_" + name.getName() + "#" + symbol.getDepth());
+            } else {
+                var = new Variable(name.getName() + "#" + symbol.getDepth());
+            }
             return new BlockInfo(var, first, last);
         } else if (symbol.getType().equals(BType.ARR)) {
+            //TODO 如果是全局变量，可化简为 la t0 , a($offset)的形式
             BlockInfo addrBlock = getAddr(state);
             last = last.insert(addrBlock.getFirst());
             if (dimensions.isEmpty()) {
@@ -153,6 +161,7 @@ public class LVal implements PrimaryUnit {
                 return new BlockInfo(tmpVar, first, last);
             }
         } else if (symbol.getType().equals(BType.MAT)) {
+            //TODO 如果是全局变量，可化简为 la t0 , a($offset)的形式
             BlockInfo addrBlock = getAddr(state);
             last = last.insert(addrBlock.getFirst());
             if (dimensions.size() != 2) {
@@ -181,18 +190,32 @@ public class LVal implements PrimaryUnit {
         Symbol symbol = state.getSymTable().get(name.getName());
         if (symbol.getType().equals(BType.ARR)) {
             if (dimensions.isEmpty()) {
-                ret = new Address(name.getName() + "#" + symbol.getDepth());
+                //TODO global_防止重名
+                if (symbol.isGlobal()) {
+                    ret = new Address("global_" + name.getName() + "#" + symbol.getDepth());
+                } else {
+                    ret = new Address(name.getName() + "#" + symbol.getDepth());
+                }
             } else {
                 BlockInfo offset = dimensions.get(0).generateIcode(state);
                 ret = new Address(String.valueOf(MiddleState.tmpCnt++));
-                Address base = new Address(name.getName() + "#" + symbol.getDepth());
+                Address base;
+                if (symbol.isGlobal()) {
+                    base = new Address("global_" + name.getName() + "#" + symbol.getDepth());
+                } else {
+                    base = new Address(name.getName() + "#" + symbol.getDepth());
+                }
                 BinaryOp calAddr = new BinaryOp(ret, BinaryOp.Operator.ADD, base, offset.getRetVal());// addr = base + offset
                 last = last.insert(offset.getFirst());
                 last = last.insert(calAddr);
             }
         } else if (symbol.getType().equals(BType.MAT)) {
             if (dimensions.isEmpty()) {
-                ret = new Address(name.getName() + "#" + symbol.getDepth());
+                if (symbol.isGlobal()) {
+                    ret = new Address("global_" + name.getName() + "#" + symbol.getDepth());
+                } else {
+                    ret = new Address(name.getName() + "#" + symbol.getDepth());
+                }
             } else {
                 BlockInfo dim1 = dimensions.get(0).generateIcode(state);
                 middle.val.Number number = new Number(symbol.getDims().get(1));
@@ -200,7 +223,12 @@ public class LVal implements PrimaryUnit {
                 BinaryOp calOffset1 = new BinaryOp(tmpOffset, BinaryOp.Operator.MULT, dim1.getRetVal(), number);//第一维偏移量
                 last = last.insert(dim1.getFirst());
                 last = last.insert(calOffset1);
-                Address base = new Address(name.getName() + "#" + symbol.getDepth());// 左值基地址
+                Address base;// 左值基地址
+                if (symbol.isGlobal()) {
+                    base = new Address("global_" + name.getName() + "#" + symbol.getDepth());
+                } else {
+                    base = new Address(name.getName() + "#" + symbol.getDepth());
+                }
                 if (dimensions.size() == 2) {
                     BlockInfo dim2 = dimensions.get(1).generateIcode(state);
                     Variable offset = new Variable(String.valueOf(MiddleState.tmpCnt++));

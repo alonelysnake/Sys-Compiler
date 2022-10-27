@@ -10,6 +10,10 @@ public class FuncEntry extends INode {
         this.paraNum = paraNum;
     }
     
+    public String getLabel() {
+        return label;
+    }
+    
     @Override
     public String toString() {
         return label + ": param num = " + paraNum + "\n";

@@ -1,9 +1,10 @@
+import backend.Translator;
+import backend.schedule.BasicScheduler;
 import error.AnalysisState;
 import lexer.Lexer;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
-import middle.instruction.INode;
 import syntax.CompUnit;
 import syntax.CompUnitParser;
 
@@ -14,6 +15,7 @@ public class Compiler {
         String inputfile;
         String outputFile;
         String errFile = "error.txt";
+        String mipsFile = "mips.txt";
         if (args.length > 0) {
             inputfile = args[1];
             outputFile = args[3];
@@ -27,18 +29,22 @@ public class Compiler {
         
         CompUnitParser parser = new CompUnitParser(tokens);
         CompUnit unit = parser.parseCompUnit();
-        //FileIO.writeParser(outputFile, unit);
+        FileIO.writeParser(outputFile, unit);
         
         AnalysisState state = new AnalysisState();
         unit.analyse(state);
         
         FileIO.writeError(errFile, state.getErrorTable());
-        
-        BlockInfo info = unit.generateIcode(new MiddleState());
-        INode first = info.getFirst();
-        while (first != null) {
-            System.out.println(first);
-            first = first.getNext();
-        }
+        MiddleState middleState = new MiddleState();
+        BlockInfo info = unit.generateIcode(middleState);
+//        FileIO.writeIR(outputFile,info.getFirst());// 写入中间代码
+        Translator translator = new Translator(info.getFirst(), new BasicScheduler(), middleState.getLabelTable());
+        String out = translator.translate();
+        FileIO.writeMIPS(mipsFile, out);
+//        INode first = info.getFirst();
+//        while (first != null) {
+//            System.out.println(first);
+//            first = first.getNext();
+//        }
     }
 }

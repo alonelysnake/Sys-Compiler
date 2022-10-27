@@ -9,6 +9,10 @@ public class Print extends INode {
         this.string = string;
     }
     
+    public String getString() {
+        return string;
+    }
+    
     @Override
     public String toString() {
         return "printf \"" + string + "\"\n";

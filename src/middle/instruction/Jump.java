@@ -9,6 +9,10 @@ public class Jump extends INode {
         this.label = label;
     }
     
+    public String getLabel() {
+        return label;
+    }
+    
     @Override
     public String toString() {
         return "jump " + label + "\n";

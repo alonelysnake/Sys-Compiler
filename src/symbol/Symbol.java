@@ -18,6 +18,7 @@ public class Symbol {
     private ArrayList<Exp> initVals;//TODO 初值如何处理?
     private ArrayList<Integer> constVals;
     private int depth;//该符号所处符号表的深度（详见符号表cnt和depth的定义）
+    private boolean global = false;
     
     public Symbol(String name, boolean constFlag, int dim) {
         this.name = name;
@@ -64,6 +65,14 @@ public class Symbol {
     
     public void setDepth(int depth) {
         this.depth = depth;
+    }
+    
+    public boolean isGlobal() {
+        return global;
+    }
+    
+    public void setGlobal(boolean global) {
+        this.global = global;
     }
     
     public ArrayList<Integer> getDims() {

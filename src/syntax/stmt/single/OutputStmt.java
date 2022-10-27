@@ -98,8 +98,8 @@ public class OutputStmt extends SingleStmt {
         INode first = new Nop();
         INode last = first;
         ArrayList<Value> vals = new ArrayList<>();
-        for (int i = paras.size() - 1; i >= 0; i--) {
-            BlockInfo para = paras.get(i).generateIcode(state);
+        for (Exp exp : paras) {
+            BlockInfo para = exp.generateIcode(state);
             last = last.insert(para.getFirst());
             vals.add(para.getRetVal());
         }

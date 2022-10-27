@@ -4,7 +4,7 @@ import middle.val.Value;
 
 import java.util.ArrayList;
 
-public class Definition extends INode {
+public class Definition extends INode implements StackSpace {
     private final boolean global;// 是否为全局变量
     private final boolean constFlag;// 是否为常量
     private final Value name;// 变量名（和原来的名字会有些区别）
@@ -17,6 +17,24 @@ public class Definition extends INode {
         this.name = name;
         this.size = size;
         this.initVals = initVals;
+    }
+    
+    public Value getName() {
+        return name;
+    }
+    
+    @Override
+    public int getSize() {
+        return size;
+    }
+    
+    @Override
+    public Value getNewVar() {
+        return name;
+    }
+    
+    public ArrayList<Value> getInitVals() {
+        return initVals;
     }
     
     @Override

@@ -74,7 +74,12 @@ public class InputStmt extends SingleStmt {
         Symbol leftSymbol = symTable.get(this.lVal.getName().getName());
         if (leftSymbol.getType().equals(BType.INT)) {
             // 对非数组变量赋值
-            Variable var = new Variable(leftSymbol.getName() + "#" + leftSymbol.getDepth());
+            Variable var;
+            if (leftSymbol.isGlobal()) {
+                var = new Variable("global_" + leftSymbol.getName() + "#" + leftSymbol.getDepth());
+            } else {
+                var = new Variable(leftSymbol.getName() + "#" + leftSymbol.getDepth());
+            }
             INode assignNode = new Move(var, retReg);
             last = last.insert(assignNode);
         } else if (leftSymbol.getType().equals(BType.ARR) ||

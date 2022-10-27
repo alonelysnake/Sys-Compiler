@@ -100,7 +100,7 @@ public class FuncDef implements SyntaxNode {
         INode first = new FuncEntry(name.getName(), getParaNum());
         state.getLabelTable().connect(name.getName(), first);
         INode last = first;
-        state.inBlock();
+        state.funcCreateSymTable();
         if (params != null) {
             BlockInfo paramsNode = params.generateIcode(state);
             last = last.insert(paramsNode.getFirst());

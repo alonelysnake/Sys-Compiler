@@ -4,11 +4,21 @@ import middle.val.Address;
 import middle.val.Value;
 import middle.val.Variable;
 
-public class FetchParam extends INode {
+public class FetchParam extends INode implements StackSpace {
     private final Value para;//形参名
     
     public FetchParam(Value para) {
         this.para = para;
+    }
+    
+    @Override
+    public int getSize() {
+        return 1;
+    }
+    
+    @Override
+    public Value getNewVar() {
+        return para;
     }
     
     @Override

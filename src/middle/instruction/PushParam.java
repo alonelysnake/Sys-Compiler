@@ -9,6 +9,10 @@ public class PushParam extends INode {
         this.para = para;
     }
     
+    public Value getPara() {
+        return para;
+    }
+    
     @Override
     public String toString() {
         return "push " + para + "\n";

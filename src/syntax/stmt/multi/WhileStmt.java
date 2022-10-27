@@ -41,6 +41,7 @@ public class WhileStmt extends JudgeStmt {
         BlockInfo cond = getCondExp().generateIcode(state);
         INode first = cond.getFirst();
         INode last = cond.getLast();
+        //TODO 短路求值
         LabelTable labelTable = state.getLabelTable();
         String loopBeginLabel = labelTable.createLabel(true, true);
         labelTable.connect(loopBeginLabel, first);

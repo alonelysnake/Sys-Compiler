@@ -18,6 +18,10 @@ public class Return extends INode {
         this.ret = ret;
     }
     
+    public Value getRet() {
+        return ret;
+    }
+    
     @Override
     public String toString() {
         if (ret != null) {

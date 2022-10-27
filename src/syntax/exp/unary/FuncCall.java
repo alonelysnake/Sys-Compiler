@@ -9,6 +9,7 @@ import middle.BlockInfo;
 import middle.MiddleState;
 import middle.instruction.Call;
 import middle.instruction.INode;
+import middle.instruction.Move;
 import middle.instruction.Nop;
 import middle.instruction.Return;
 import middle.val.Variable;
@@ -93,21 +94,24 @@ public class FuncCall implements ExpUnit {
     @Override
     public BlockInfo generateIcode(MiddleState state) {
         INode first;
+        INode last;
         if (paras != null) {
-            first = paras.generateIcode(state).getFirst();
+            BlockInfo paramBlock = paras.generateIcode(state);
+            first = paramBlock.getFirst();
+            last = paramBlock.getLast();
         } else {
             first = new Nop();
+            last = first;
         }
-        INode last = first;
         INode call = new Call(name.getName());
         last = last.insert(call);
-        // TODO 是否需要 t1 = v0
-//        Variable tmpVar = new Variable(String.valueOf(MiddleState.tmpCnt++));
-//        INode move = new Move(tmpVar, new Variable(Return.RET_REG));
-//        last = last.insert(move);
-//        return new BlockInfo(tmpVar, first, last);
+        // TODO 表达式里有多个函数时需要 t1 = v0，只有单个时是否可以化简?
+        Variable tmpVar = new Variable(String.valueOf(MiddleState.tmpCnt++));
+        INode move = new Move(tmpVar, new Variable(Return.RET_REG));
+        last = last.insert(move);
+        return new BlockInfo(tmpVar, first, last);
         
-        return new BlockInfo(new Variable(Return.RET_REG), first, last);
+        //return new BlockInfo(new Variable(Return.RET_REG), first, last);
     }
     
     public String getFuncName() {

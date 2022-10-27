@@ -1,6 +1,8 @@
+import backend.instruction.MIPSCode;
 import error.Error;
 import error.ErrorTable;
 import lexer.token.Token;
+import middle.instruction.INode;
 import syntax.CompUnit;
 
 import java.io.BufferedReader;
@@ -59,6 +61,43 @@ public class FileIO {
             for (Error error : table.getErrors()) {
                 bw.write(error.toString());
             }
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void writeIR(String filepath, INode first) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
+            while (first != null) {
+                bw.write(first.toString());
+                bw.write("\n");
+                first = first.getNext();
+            }
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void writeMIPS(String filepath, MIPSCode first) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
+            while (first != null) {
+                bw.write(first.toString());
+                first = first.getNext();
+            }
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void writeMIPS(String filepath, String str) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
+            bw.write(str);
             bw.close();
         } catch (IOException e) {
             e.printStackTrace();

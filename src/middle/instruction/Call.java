@@ -8,6 +8,10 @@ public class Call extends INode {
         this.label = label;
     }
     
+    public String getLabel() {
+        return label;
+    }
+    
     @Override
     public String toString() {
         return "call function " + label + "\n";

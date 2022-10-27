@@ -109,10 +109,12 @@ public class FuncFParam implements SyntaxNode {
         ArrayList<Integer> dimLen = new ArrayList<>();
         int size = getDimNum();
         Symbol symbol = new Symbol(name.getName(), false, getDimNum());
+        dimLen.add(0);
         if (followDimensions != null) {
             dimLen.add(followDimensions.get(0).calConst(state.getSymTable()));
         }
         symbol.setInit(dimLen, new ArrayList<>());
+        state.getSymTable().add(symbol);
         INode fetch;
         if (size == 0) {
             Variable var = new Variable(name.getName() + "#" + symbol.getDepth());

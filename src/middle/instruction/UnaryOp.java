@@ -2,7 +2,7 @@ package middle.instruction;
 
 import middle.val.Value;
 
-public class UnaryOp extends INode {
+public class UnaryOp extends INode implements StackSpace {
     public enum Operator {
         NEG("-"), NOT("!");
         
@@ -26,6 +26,31 @@ public class UnaryOp extends INode {
         this.src = src;
         this.op = op;
         this.dst = dst;
+    }
+    
+    public Value getSrc() {
+        return src;
+    }
+    
+    public Value getDst() {
+        return dst;
+    }
+    
+    public Operator getOp() {
+        return op;
+    }
+    
+    @Override
+    public int getSize() {
+        if (dst.isTemp()) {
+            return 1;
+        }
+        return 0;
+    }
+    
+    @Override
+    public Value getNewVar() {
+        return dst;
     }
     
     @Override
