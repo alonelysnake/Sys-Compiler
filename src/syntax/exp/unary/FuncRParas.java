@@ -61,11 +61,12 @@ public class FuncRParas implements SyntaxNode {
         ArrayList<Value> vals = new ArrayList<>();
         INode first = new Nop();
         INode last = first;
-        for (int i = paras.size() - 1; i >= 0; i--) {
-            BlockInfo expBlock = paras.get(i).generateIcode(state);
+        for (Exp exp : paras) {
+            BlockInfo expBlock = exp.generateIcode(state);
             last = last.insert(expBlock.getFirst());
             vals.add(expBlock.getRetVal());
         }
+        
         for (Value val : vals) {
             last = last.insert(new PushParam(val));
         }

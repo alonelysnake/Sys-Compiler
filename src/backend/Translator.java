@@ -77,7 +77,7 @@ public class Translator {
         while (pointer != null) {
             last = last.insert(new MiddleComment(pointer));
             final MIPSCode lastLast = last;// 上一个中间指令的最后一条指令
-            //TODO 跳转指令是否需要设置保存值?
+            //TODO 跳转指令是否需要设置保存寄存器的值?
             //TODO 被跳转到的指令（有标签的）是否需要设置保存?
             if (pointer instanceof BinaryOp) {
                 transBinaryOp();
@@ -279,7 +279,6 @@ public class Translator {
     }
     
     private void transEntry() {
-        //TODO 注意增加func_前缀
         /*
         func_entry:
         addiu $sp, $sp, -frame size
