@@ -46,10 +46,19 @@ public class WhileStmt extends JudgeStmt {
         String loopBeginLabel = labelTable.createLabel(true, true);
         labelTable.connect(loopBeginLabel, first);
         String loopEndLabel = labelTable.createLabel(true, false);
-        Branch branch = new Branch(cond.getRetVal(), new Number(0), Branch.Operator.EQ, loopEndLabel);
-        last = last.insert(branch);
-        INode jump = new Jump(loopBeginLabel);
+//        Branch branch = new Branch(cond.getRetVal(), new Number(0), Branch.Operator.EQ, loopEndLabel);
+//        last = last.insert(branch);
+        Jump jump = new Jump(loopEndLabel);
+        last = last.getPrev().insert(jump).getNext();
+        
+        state.inLoop(loopBeginLabel, loopEndLabel);
+        BlockInfo mainBlock = getMainStmt().generateIcode(state);
+        last = last.insert(mainBlock.getFirst());
+        state.outLoop();
+        
+        jump = new Jump(loopBeginLabel);
         last = last.insert(jump);
+        
         INode loopEnd = new Nop();
         labelTable.connect(loopEndLabel, loopEnd);
         last = last.insert(loopEnd);

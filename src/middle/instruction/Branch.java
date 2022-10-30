@@ -4,7 +4,8 @@ import middle.val.Value;
 
 public class Branch extends INode {
     //分支语句
-    
+    //在中间代码中规定right恒为0
+    // if left <op> right, then jump to label
     public enum Operator {
         EQ("=="),
         NEQ("!="),
@@ -35,6 +36,22 @@ public class Branch extends INode {
         this.right = right;
         this.op = op;
         this.label = label;
+    }
+    
+    public Value getLeft() {
+        return left;
+    }
+    
+    public Value getRight() {
+        return right;
+    }
+    
+    public Operator getOp() {
+        return op;
+    }
+    
+    public String getLabel() {
+        return label;
     }
     
     @Override

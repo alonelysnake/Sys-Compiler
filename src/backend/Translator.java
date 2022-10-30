@@ -6,6 +6,8 @@ import backend.element.LabelAddr;
 import backend.element.MIPSUnit;
 import backend.element.Reg;
 import backend.element.RegAddr;
+import backend.instruction.Beq;
+import backend.instruction.Bne;
 import backend.instruction.ICal;
 import backend.instruction.J;
 import backend.instruction.Jal;
@@ -190,8 +192,28 @@ public class Translator {
     }
     
     private void transBranch() {
-        //TODO
-        
+        Branch branch = (Branch) pointer;
+        ArrayList<Reg> forbids = new ArrayList<>();
+        MIPSUnit left = getRegOrImm(branch.getLeft(), forbids, true);
+        // MIPSUnit right = getRegOrImm(branch.getRight(), forbids, true); 此处在中间代码处固定为0
+        Branch.Operator op = branch.getOp();
+        if (!(op.equals(Branch.Operator.EQ) || op.equals(Branch.Operator.NEQ))) {
+            System.err.println("translator: 中间代码branch不应有除eq和neq外的");
+        }
+        if (left instanceof Reg) {
+            if (op.equals(Branch.Operator.EQ)) {
+                last = last.insert(new Beq(left, Reg.ZERO, new LabelAddr(branch.getLabel())));
+            } else {
+                last = last.insert(new Bne(left, Reg.ZERO, new LabelAddr(branch.getLabel())));
+            }
+        } else {
+            last = last.insert(new Li(Reg.TMP, (Imm) left));
+            if (op.equals(Branch.Operator.EQ)) {
+                last = last.insert(new Beq(Reg.TMP, Reg.ZERO, new LabelAddr(branch.getLabel())));
+            } else {
+                last = last.insert(new Bne(Reg.TMP, Reg.ZERO, new LabelAddr(branch.getLabel())));
+            }
+        }
     }
     
     private void transCall() {
@@ -220,7 +242,7 @@ public class Translator {
         last = last.insert(new Sw(Reg.RET_ADDR, new RegAddr(Reg.SP, 0)));// sw $ra, 0($sp)
         last = last.insert(new Jal("func_" + ((Call) pointer).getLabel()));// jal func，用func_避免和其他标签重名
         last = last.insert(new Lw(Reg.RET_ADDR, new RegAddr(Reg.SP, 0)));// lw $ra, 0($sp)
-        // 恢复上下文
+        // TODO 是否要恢复上下文?
         for (Reg reg : curContext.keySet()) {
             Value val = scheduler.reg2val(reg);
             //TODO 判断是否要读回来的条件?

@@ -78,7 +78,13 @@ public class UnaryExp implements SyntaxNode {
             return 0;
         }
         PrimaryExp exp = (PrimaryExp) unit;
-        return exp.calConst(symTable);
+        int ans = exp.calConst(symTable);
+        for (Token token : ops) {
+            if (token.getType().equals(TokenCategory.MINUS)) {
+                ans *= -1;
+            }
+        }
+        return ans;
     }
     
     @Override

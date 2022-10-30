@@ -13,4 +13,9 @@ public class Beq extends MIPSCode {
         this.operand2 = operand2;
         this.label = label;
     }
+    
+    @Override
+    public String toString() {
+        return "beq " + operand1 + ", " + operand2 + ", " + label + "\n";
+    }
 }

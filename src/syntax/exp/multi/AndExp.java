@@ -37,7 +37,7 @@ public class AndExp extends ExpList<EqExp> {
             Branch branch = new Branch(andBlock.getRetVal(), new Number(0), Branch.Operator.EQ, endLabel);
             p = p.insert(branch);
         }
-        p.remove();//交给or判断最后一个元素（如果运行到上一级or的branch，则形式为1&&1&&last，只取决于最后一个元素）
+        p = p.replace(new Nop());//交给or判断最后一个元素（如果运行到上一级or的branch，则形式为1&&1&&last，只取决于最后一个元素）
         p.insert(last);
         
         assert andBlock != null;

@@ -24,7 +24,7 @@ public class MiddleState {
     public void inLoop(String startLabel, String endLabel) {
         //进入循环时调用
         startLabels.push(startLabel);
-        startLabels.push(endLabel);
+        endLabels.push(endLabel);
     }
     
     public void outLoop() {
