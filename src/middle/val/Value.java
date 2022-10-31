@@ -14,6 +14,13 @@ public abstract class Value {
         return Character.isDigit(name.charAt(0)) && !(this instanceof Number);
     }
     
+    public boolean isGlobal() {
+        if (isTemp()) {
+            return false;
+        }
+        return name.split("#")[1].equals("0");
+    }
+    
     public String getName() {
         return name;
     }

@@ -68,4 +68,11 @@ public interface Scheduler {
      * @return
      */
     boolean isActive(INode curINode, Value val);
+    
+    /**
+     * 判断寄存器是否为全局寄存器
+     * @param reg
+     * @return
+     */
+    boolean isGlobal(Reg reg);
 }

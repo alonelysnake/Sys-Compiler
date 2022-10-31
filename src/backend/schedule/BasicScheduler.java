@@ -88,4 +88,10 @@ public class BasicScheduler implements Scheduler {
     public boolean isActive(INode curINode, Value val) {
         return true;
     }
+    
+    @Override
+    public boolean isGlobal(Reg reg) {
+        // 所有寄存器均当作临时寄存器处理
+        return false;
+    }
 }

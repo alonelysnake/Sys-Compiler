@@ -50,6 +50,8 @@ import middle.val.Variable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 public class Translator {
@@ -79,7 +81,7 @@ public class Translator {
         while (pointer != null) {
             last = last.insert(new MiddleComment(pointer));
             final MIPSCode lastLast = last;// 上一个中间指令的最后一条指令
-            //TODO 跳转指令是否需要设置保存寄存器的值?
+            //TODO 跳转指令需要保存寄存器的值，否则对于循环会出现反复加载而没有存入、或是在未进入的分支加载而此分支未加载的情况
             //TODO 被跳转到的指令（有标签的）是否需要设置保存?
             if (pointer instanceof BinaryOp) {
                 transBinaryOp();
@@ -192,6 +194,9 @@ public class Translator {
     }
     
     private void transBranch() {
+        //TODO 跳转指令需要保存寄存器的值，否则对于循环会出现反复加载而没有存入、或是在未进入的分支加载而此分支未加载的情况
+        jumpClear();
+        
         Branch branch = (Branch) pointer;
         ArrayList<Reg> forbids = new ArrayList<>();
         MIPSUnit left = getRegOrImm(branch.getLeft(), forbids, true);
@@ -355,6 +360,9 @@ public class Translator {
     }
     
     private void transJump() {
+        //TODO 应该和branch保持一致?
+        jumpClear();
+        
         Jump jump = (Jump) pointer;
         last = last.insert(new J(jump.getLabel()));
     }
@@ -437,6 +445,8 @@ public class Translator {
     }
     
     private void transReturn() {
+        
+        //TODO 考虑跳转到函数结尾统一jr?也许能减少总行数
         Return ret = (Return) pointer;
         Value retVal = ret.getRet();
         if (retVal != null) {
@@ -447,6 +457,9 @@ public class Translator {
                 last = last.insert(new Move(Reg.RET_VAL, (Reg) unit));
             }
         }
+        
+        //TODO 只保存全局量应该就行
+        jumpClear();
         last = last.insert(new ICal(ICal.Op.ADDIU, Reg.SP, Reg.SP, new Imm(this.fpSize)));//addiu $sp, $sp, frame size
         last = last.insert(new Jr());// jr $ra
     }
@@ -521,6 +534,9 @@ public class Translator {
                 ret = scheduler.possibleFree(forbids);
                 Value oldVal = scheduler.reg2val(ret);
                 //对于非数组变量和临时变量，如果被替换时还活跃则需要存入
+                if (oldVal.toString().equals("$global_groups#0")) {
+                    System.out.println("gg");
+                }
                 if ((oldVal.isTemp() || oldVal instanceof Variable) && scheduler.isActive(pointer, oldVal)) {
                     last = last.insert(new Sw(ret, val2addr.get(oldVal)));
                 }
@@ -538,6 +554,36 @@ public class Translator {
         
         forbids.add(ret);
         return ret;
+    }
+    
+    /**
+     * 当遇到beq、jr、j指令时，要根据此时寄存器的分配情况将寄存器的值存回内存栈，以及释放不必要的寄存器
+     */
+    private void jumpClear() {
+        HashMap<Reg, Value> context = new HashMap<>(scheduler.getCurrentContext());
+        for (Reg reg : context.keySet()) {
+            Value val = context.get(reg);
+            Address addr = val2addr.get(val);
+            //TODO 此处做了些魔改
+            // 只有变量需要存储，数组指针不需要
+            if (val instanceof Variable) {
+                if (val.isGlobal() ||
+                        ((pointer.getPrev() == null || scheduler.isActive(pointer.getPrev(), val)) && !scheduler.isGlobal(reg))) {
+                    //TODO 对于变量Variable，如果是存在临时寄存器里的活跃变量（或全局变量），则应该存回去，并释放寄存器
+                    last = last.insert(new Sw(reg, val2addr.get(val)));
+                }
+            }
+            // 释放无用的寄存器
+            if (addr instanceof LabelAddr) {
+                //说明是全局变量，一定存回了内存，必须释放（如果两个分支一个加载到寄存器了一个没加载，不释放会导致后续代码需要加载到寄存器但不加载）
+                scheduler.free(reg);
+            } else {
+                //局部变量 临时变量的释放取决于是否占据了全局寄存器，未占据的可以释放
+                if (!scheduler.isGlobal(reg)) {
+                    scheduler.free(reg);
+                }
+            }
+        }
     }
     
     private void globalInit() {

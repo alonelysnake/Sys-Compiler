@@ -83,6 +83,9 @@ public class IfStmt extends JudgeStmt {
         INode thenEnd = new Nop();
         labelTable.connect(thenEndLabel, thenEnd);
         if (elseStmt == null) {
+            //TODO 也应该有个跳转，否则生成mips后寄存器分配会出现差异
+            Jump jumpThenEnd = new Jump(thenEndLabel);
+            last = last.insert(jumpThenEnd);
             last = last.insert(thenEnd);
         } else {
             String elseEndLabel = labelTable.createLabel(false, false);
