@@ -11,3 +11,5 @@ gen
 *.md
 *.png
 *.gitignore
+*.jar
+*.ps1

@@ -16,6 +16,10 @@ public class FetchParam extends INode implements StackSpace {
         return 1;
     }
     
+    public Value getPara() {
+        return para;
+    }
+    
     @Override
     public Value getNewVar() {
         return para;

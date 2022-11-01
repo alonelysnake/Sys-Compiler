@@ -49,6 +49,7 @@ public class CompUnit implements SyntaxNode {
         for (FuncDef func : this.funcs) {
             BlockInfo funcBlock = func.generateIcode(state);
             last = last.insert(funcBlock.getFirst());
+            last = last.insert(new Nop());
         }
         BlockInfo mainBlock = mainFunc.generateIcode(state);
         last = last.insert(mainBlock.getFirst());

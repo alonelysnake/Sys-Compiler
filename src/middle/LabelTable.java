@@ -19,6 +19,12 @@ public class LabelTable {
     }
     
     public ArrayList<String> getLabels(INode iNode) {
+        if (iNode == null) {
+            return null;
+        }
+        if (!iNode2Label.containsKey(iNode)) {
+            return null;
+        }
         return iNode2Label.get(iNode);
     }
     
@@ -51,7 +57,7 @@ public class LabelTable {
         }
     }
     
-    public void replaceINode(INode src, INode dst){
+    public void replaceINode(INode src, INode dst) {
         //TODO
     }
 }

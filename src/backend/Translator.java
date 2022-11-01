@@ -50,8 +50,6 @@ import middle.val.Variable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Stack;
 
 public class Translator {
@@ -62,6 +60,7 @@ public class Translator {
     private final MIPSLabelTable mipsTable = new MIPSLabelTable();
     private final LabelTable labelTable;
     private final HashMap<Value, Address> val2addr = new HashMap<>();
+    private final ArrayList<Value> pointers = new ArrayList<>();
     private int fpSize = 0;
     private int pushNum = 0;// push时的参数个数，翻译完函数调用语句后清零。
     private int strNum = 0;// 字符串个数
@@ -80,7 +79,7 @@ public class Translator {
         //.text处理
         while (pointer != null) {
             last = last.insert(new MiddleComment(pointer));
-            final MIPSCode lastLast = last;// 上一个中间指令的最后一条指令
+            final MIPSCode lastLast = last;// 上一个中间指令的最后一条mips指令
             //TODO 跳转指令需要保存寄存器的值，否则对于循环会出现反复加载而没有存入、或是在未进入的分支加载而此分支未加载的情况
             //TODO 被跳转到的指令（有标签的）是否需要设置保存?
             if (pointer instanceof BinaryOp) {
@@ -128,7 +127,31 @@ public class Translator {
                     labels.forEach(label -> mipsTable.connect(label, labelCode));
                 }
             }
+            //TODO 为避免跳转导致寄存器分配失败，因此对于下一条中间代码是label指向的指令的需要适当写入
+            //可参考jumpClear函数
+            ArrayList<String> labels = labelTable.getLabels(pointer.getNext());
+            if (labels != null) {
+                HashMap<Reg, Value> context = new HashMap<>(scheduler.getCurrentContext());
+                for (Reg reg : context.keySet()) {
+                    Value val = context.get(reg);
+                    Address addr = val2addr.get(val);
+                    if (val instanceof Variable) {
+                        if (val.isGlobal() ||
+                                (scheduler.isActive(pointer, val) && !scheduler.isGlobal(reg))) {
+                            last = last.insert(new Sw(reg, addr));
+                        }
+                    }
+                    if (addr instanceof LabelAddr) {
+                        scheduler.free(reg);
+                    } else {
+                        if (!scheduler.isGlobal(reg)) {
+                            scheduler.free(reg);
+                        }
+                    }
+                }
+            }
             pointer = pointer.getNext();
+            
         }
         StringBuilder sb = new StringBuilder();
         sb.append(".data\n");
@@ -151,9 +174,9 @@ public class Translator {
     private void transBinaryOp() {
         BinaryOp code = (BinaryOp) pointer;
         ArrayList<Reg> forbids = new ArrayList<>();
-        MIPSUnit op1 = getRegOrImm(code.getOp1(), forbids, true);
-        MIPSUnit op2 = getRegOrImm(code.getOp2(), forbids, true);
-        MIPSUnit left = getRegOrImm(code.getResult(), forbids, false);
+        MIPSUnit op1 = getMIPSUnit(code.getOp1(), forbids, true);
+        MIPSUnit op2 = getMIPSUnit(code.getOp2(), forbids, true);
+        MIPSUnit left = getMIPSUnit(code.getResult(), forbids, false);
         if (code.getOp1() instanceof middle.val.Address) {
             //左操作数是地址
             if (op2 instanceof Imm) {
@@ -161,7 +184,7 @@ public class Translator {
                 MIPSCode mipsCode = new ICal(ICal.middle2MIPSBinary.get(code.getOp()), (Reg) left, (Reg) op1, (Imm) op2);
                 last = last.insert(mipsCode);
             } else {
-                MIPSCode calOffset = new ICal(ICal.Op.SLL, Reg.TMP, (Reg) op1, new Imm(2));
+                MIPSCode calOffset = new ICal(ICal.Op.SLL, Reg.TMP, (Reg) op2, new Imm(2));
                 MIPSCode binaryCode = new RCal(RCal.middle2MIPSBinary.get(code.getOp()), (Reg) left, (Reg) op1, Reg.TMP);
                 last = last.insert(calOffset);
                 last = last.insert(binaryCode);
@@ -199,7 +222,7 @@ public class Translator {
         
         Branch branch = (Branch) pointer;
         ArrayList<Reg> forbids = new ArrayList<>();
-        MIPSUnit left = getRegOrImm(branch.getLeft(), forbids, true);
+        MIPSUnit left = getMIPSUnit(branch.getLeft(), forbids, true);
         // MIPSUnit right = getRegOrImm(branch.getRight(), forbids, true); 此处在中间代码处固定为0
         Branch.Operator op = branch.getOp();
         if (!(op.equals(Branch.Operator.EQ) || op.equals(Branch.Operator.NEQ))) {
@@ -239,7 +262,13 @@ public class Translator {
         for (Reg reg : curContext.keySet()) {
             Value val = scheduler.reg2val(reg);
             //TODO 判断是否要存回去的条件?
-            if (scheduler.isActive(pointer, val)) {
+            if (val instanceof Variable) {
+                if (scheduler.isActive(pointer, val) || val.isGlobal()) {
+                    last = last.insert(new Sw(reg, val2addr.get(val)));
+                }
+            } else if (val.isTemp()) {
+                //如果变量是临时的，则一定作为左值出现过，在栈中有地址
+                //TODO 如果此时在函数中，如何处理形参指针? 按照文法规定形参不能被赋值，故无需存储
                 last = last.insert(new Sw(reg, val2addr.get(val)));
             }
         }
@@ -251,8 +280,17 @@ public class Translator {
         for (Reg reg : curContext.keySet()) {
             Value val = scheduler.reg2val(reg);
             //TODO 判断是否要读回来的条件?
-            if (scheduler.isActive(pointer, val)) {
-                last = last.insert(new Lw(reg, val2addr.get(val)));
+            if (val instanceof Variable) {
+                if (scheduler.isActive(pointer, val) || val.isGlobal()) {
+                    last = last.insert(new Lw(reg, val2addr.get(val)));
+                }
+            } else {
+                if (val.isTemp() || pointers.contains(val)) {
+                    //除了临时变量外，指针也需要读入
+                    last = last.insert(new Lw(reg, val2addr.get(val)));
+                } else {
+                    last = last.insert(new La(reg, val2addr.get(val)));
+                }
             }
         }
     }
@@ -265,23 +303,26 @@ public class Translator {
             //不是数组
             //TODO 如果是常量，可考虑优化，中间代码时直接变成数带入，不需要存储
             ArrayList<Value> initVals = def.getInitVals();
-            if (!def.getInitVals().isEmpty()) {
+            if (!initVals.isEmpty()) {
                 //没有进行初值赋值时不需要任何操作
                 Value initVal = initVals.get(0);
                 ArrayList<Reg> forbids = new ArrayList<>();
-                MIPSUnit right = getRegOrImm(initVal, forbids, true);
-                MIPSUnit left = getRegOrImm(defVar, forbids, false);
+                MIPSUnit right = getMIPSUnit(initVal, forbids, true);
+                MIPSUnit left = getMIPSUnit(defVar, forbids, false);
                 if (initVal instanceof Number) {
                     last = last.insert(new Li((Reg) left, (Imm) right));
                 } else {
                     last = last.insert(new Move((Reg) left, (Reg) right));
                 }
-            } else {
-                RegAddr addr = (RegAddr) val2addr.get(defVar);
+            }
+        } else {
+            RegAddr addr = (RegAddr) val2addr.get(defVar);
+            ArrayList<Value> initVals = def.getInitVals();
+            if (!initVals.isEmpty()) {
                 for (int i = 0; i < initVals.size(); i++) {
                     Value initVal = initVals.get(i);
                     ArrayList<Reg> forbids = new ArrayList<>();
-                    MIPSUnit right = getRegOrImm(initVal, forbids, true);
+                    MIPSUnit right = getMIPSUnit(initVal, forbids, true);
                     if (right instanceof Imm) {
                         // a[1] = 5;
                         last = last.insert(new Li(Reg.TMP, (Imm) right));// li $tmp, 5
@@ -290,8 +331,8 @@ public class Translator {
                         last = last.insert(new Sw((Reg) right, new RegAddr(addr, i * 4)));
                     }
                 }
-                //TODO 是否要把定义的变量读入寄存器?
             }
+            //TODO 是否要把定义的变量读入寄存器?
         }
     }
     
@@ -302,7 +343,8 @@ public class Translator {
     
     private void transFetch() {
         //TODO
-        // 似乎什么也不用做?是否需要加载到寄存器里?
+        // 是否需要加载到寄存器里?
+        pointers.add(((FetchParam) pointer).getPara());
     }
     
     private void transEntry() {
@@ -320,6 +362,7 @@ public class Translator {
         the last var
         -------------------------------------------- <-- new sp
          */
+        pointers.clear();
         scheduler.clear();
         FuncEntry entry = (FuncEntry) pointer;
         INode tmp = entry.getNext();
@@ -370,16 +413,16 @@ public class Translator {
     private void transLoad() {
         Load load = (Load) pointer;
         ArrayList<Reg> forbid = new ArrayList<>();
-        MIPSUnit right = getRegOrImm(load.getAddr(), forbid, true);
-        MIPSUnit left = getRegOrImm(load.getDst(), forbid, false);
+        MIPSUnit right = getMIPSUnit(load.getAddr(), forbid, true);
+        MIPSUnit left = getMIPSUnit(load.getDst(), forbid, false);
         last = last.insert(new Lw((Reg) left, new RegAddr((Reg) right, 0)));
     }
     
     private void transMove() {
         middle.instruction.Move move = (middle.instruction.Move) pointer;
         ArrayList<Reg> forbids = new ArrayList<>();
-        MIPSUnit src = getRegOrImm(move.getrVal(), forbids, true);
-        MIPSUnit dst = getRegOrImm(move.getlVal(), forbids, false);
+        MIPSUnit src = getMIPSUnit(move.getrVal(), forbids, true);
+        MIPSUnit dst = getMIPSUnit(move.getlVal(), forbids, false);
         if (src instanceof Imm) {
             last = last.insert(new Li((Reg) dst, (Imm) src));
         } else {
@@ -435,7 +478,7 @@ public class Translator {
     private void transPush() {
         pushNum++;
         PushParam push = (PushParam) pointer;
-        MIPSUnit param = getRegOrImm(push.getPara(), new ArrayList<>(), true);
+        MIPSUnit param = getMIPSUnit(push.getPara(), new ArrayList<>(), true);
         if (param instanceof Imm) {
             last = last.insert(new Li(Reg.TMP, (Imm) param));
             last = last.insert(new Sw(Reg.TMP, new RegAddr(Reg.SP, -pushNum * 4)));
@@ -450,7 +493,7 @@ public class Translator {
         Return ret = (Return) pointer;
         Value retVal = ret.getRet();
         if (retVal != null) {
-            MIPSUnit unit = getRegOrImm(retVal, new ArrayList<>(), true);
+            MIPSUnit unit = getMIPSUnit(retVal, new ArrayList<>(), true);
             if (unit instanceof Imm) {
                 last = last.insert(new Li(Reg.RET_VAL, (Imm) unit));
             } else {
@@ -467,8 +510,8 @@ public class Translator {
     private void transSave() {
         Save save = (Save) pointer;
         ArrayList<Reg> forbids = new ArrayList<>();
-        MIPSUnit val = getRegOrImm(save.getSrc(), forbids, true);
-        MIPSUnit addr = getRegOrImm(save.getDst(), forbids, true);//TODO 此处为何需要alloc特判?
+        MIPSUnit val = getMIPSUnit(save.getSrc(), forbids, true);
+        MIPSUnit addr = getMIPSUnit(save.getDst(), forbids, true);//TODO 此处为何需要alloc特判?
         if (val instanceof Imm) {
             last = last.insert(new Li(Reg.TMP, (Imm) val));
             last = last.insert(new Sw(Reg.TMP, new RegAddr((Reg) addr, 0)));
@@ -481,8 +524,8 @@ public class Translator {
         UnaryOp unary = (UnaryOp) pointer;
         UnaryOp.Operator op = unary.getOp();
         ArrayList<Reg> forbids = new ArrayList<>();
-        MIPSUnit src = getRegOrImm(unary.getSrc(), forbids, true);
-        MIPSUnit dst = getRegOrImm(unary.getDst(), forbids, true);
+        MIPSUnit src = getMIPSUnit(unary.getSrc(), forbids, true);
+        MIPSUnit dst = getMIPSUnit(unary.getDst(), forbids, true);
         if (src instanceof Imm) {
             switch (op) {
                 case NEG:
@@ -514,7 +557,7 @@ public class Translator {
      * @param load:    if true then 把val放到reg里
      * @return
      */
-    private MIPSUnit getRegOrImm(Value val, ArrayList<Reg> forbids, boolean load) {
+    private MIPSUnit getMIPSUnit(Value val, ArrayList<Reg> forbids, boolean load) {
         //TODO 得到mips里的运算数，可以是寄存器或立即数
         // 立即数直接返回即可
         if (val instanceof Number) {
@@ -534,9 +577,6 @@ public class Translator {
                 ret = scheduler.possibleFree(forbids);
                 Value oldVal = scheduler.reg2val(ret);
                 //对于非数组变量和临时变量，如果被替换时还活跃则需要存入
-                if (oldVal.toString().equals("$global_groups#0")) {
-                    System.out.println("gg");
-                }
                 if ((oldVal.isTemp() || oldVal instanceof Variable) && scheduler.isActive(pointer, oldVal)) {
                     last = last.insert(new Sw(ret, val2addr.get(oldVal)));
                 }
@@ -544,10 +584,25 @@ public class Translator {
             }
             // 载入寄存器
             if (load) {
+                Address addr = val2addr.get(val);
+                /*
+                若val是variable，则一定是lw
+                若val是addr，则根据在内存中的地址类型判断：
+                    若为reg(相对sp的位移)，则根据条件输入判断是求值还是地址
+                        如果是地址，则la （为a[1][1] 中读取a[1]时的结果，返回的应该是a[1]的地址）
+                        如果是要save的，则lw（此处lw的是计算sw的基地址的临时寄存器存到内存的值）
+                        如果是函数形参指针，则lw（值为记录的地址，而非指针本身的地址）
+                        如果是临时寄存器，则lw（和save的原因相仿）
+                    若为label（绝对地址，即全局数组），则一定la（如果是根据偏移量lw求值则不需要加载到寄存器这一步）
+                 */
                 if (val instanceof Variable) {
-                    last = last.insert(new Lw(ret, val2addr.get(val)));
+                    last = last.insert(new Lw(ret, addr));
                 } else {
-                    last = last.insert(new La(ret, val2addr.get(val)));
+                    if (addr instanceof RegAddr && (val.isTemp() || pointers.contains(val))) {
+                        last = last.insert(new Lw(ret, addr));
+                    } else {
+                        last = last.insert(new La(ret, addr));
+                    }
                 }
             }
         }
