@@ -195,7 +195,15 @@ public class Translator {
         } else if (code.getOp1() instanceof Variable) {
             //op1是变量
             if (op2 instanceof Imm) {
-                MIPSCode mipsCode = new ICal(ICal.middle2MIPSBinary.get(code.getOp()), (Reg) left, (Reg) op1, (Imm) op2);
+                MIPSCode mipsCode;
+//                mipsCode = new ICal(ICal.middle2MIPSBinary.get(code.getOp()), (Reg) left, (Reg) op1, (Imm) op2);
+                int number = ((Imm) op2).getVal();
+                if (ICal.middle2MIPSBinary.get(code.getOp()).equals(ICal.Op.SLTI) && (number > 32767 || number < -32768)) {
+                    last = last.insert(new Li(Reg.TMP, ((Imm) op2)));
+                    mipsCode = new RCal(RCal.Op.SLT, (Reg) left, (Reg) op1, Reg.TMP);
+                } else {
+                    mipsCode = new ICal(ICal.middle2MIPSBinary.get(code.getOp()), (Reg) left, (Reg) op1, (Imm) op2);
+                }
                 last = last.insert(mipsCode);
             } else {
                 MIPSCode binaryCode = new RCal(RCal.middle2MIPSBinary.get(code.getOp()), (Reg) left, (Reg) op1, (Reg) op2);
