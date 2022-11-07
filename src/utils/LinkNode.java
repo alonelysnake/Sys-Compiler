@@ -50,6 +50,13 @@ public abstract class LinkNode<T extends LinkNode<T>> {
     
     // 把该节点替换为另一（组）节点，返回另一（组）节点原本的末节点
     public T replace(T node) {
+        /*
+        p->p->p->p
+              ^------------replaced by q1->q2->q3
+        result:
+        p->p->q1->q2->q3->p
+                       ^------------------return position
+         */
         /*T p = node;
         while (p.getNext() != null) {
             p = p.getNext();

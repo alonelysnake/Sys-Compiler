@@ -42,7 +42,7 @@ import middle.instruction.Print;
 import middle.instruction.PushParam;
 import middle.instruction.Return;
 import middle.instruction.Save;
-import middle.instruction.StackSpace;
+import middle.instruction.DefNode;
 import middle.instruction.UnaryOp;
 import middle.val.Number;
 import middle.val.Value;
@@ -78,7 +78,7 @@ public class Translator {
         globalInit();
         //.text处理
         while (pointer != null) {
-            last = last.insert(new MiddleComment(pointer));
+//            last = last.insert(new MiddleComment(pointer));
             final MIPSCode lastLast = last;// 上一个中间指令的最后一条mips指令
             //TODO 跳转指令需要保存寄存器的值，否则对于循环会出现反复加载而没有存入、或是在未进入的分支加载而此分支未加载的情况
             //TODO 被跳转到的指令（有标签的）是否需要设置保存?
@@ -307,6 +307,7 @@ public class Translator {
         assert pointer instanceof Definition;
         Definition def = (Definition) pointer;
         Value defVar = def.getName();
+        final MIPSCode lastCode = last;
         if (defVar instanceof Variable) {
             //不是数组
             //TODO 如果是常量，可考虑优化，中间代码时直接变成数带入，不需要存储
@@ -341,6 +342,9 @@ public class Translator {
                 }
             }
             //TODO 是否要把定义的变量读入寄存器?
+        }
+        if (lastCode == last) {
+            last = last.insert(new Nop());// 标签的挂载对象
         }
     }
     
@@ -379,10 +383,10 @@ public class Translator {
         Stack<Value> vars = new Stack<>();
         Stack<Integer> sizes = new Stack<>();
         while (tmp != null && !(tmp instanceof FuncEntry)) {
-            if (tmp instanceof StackSpace) {
-                int size = ((StackSpace) tmp).getSize();
+            if (tmp instanceof DefNode) {
+                int size = ((DefNode) tmp).getSize();
                 if (size != 0) {
-                    Value var = ((StackSpace) tmp).getNewVar();
+                    Value var = ((DefNode) tmp).getDef();
                     vars.push(var);
                     sizes.push(size);
                     fpSize += 4 * size;
@@ -454,6 +458,7 @@ public class Translator {
         ...
         lsat param
          */
+        final MIPSCode lastCode = last;
         String format = ((Print) pointer).getString();
         int cnt = 1;
         for (int i = format.indexOf("%d"); i >= 0; i = format.indexOf("%d")) {
@@ -481,6 +486,9 @@ public class Translator {
             last = last.insert(new Syscall());// syscall
         }
         pushNum = 0;
+        if (lastCode == last) {
+            last = last.insert(new Nop());// 标签的挂载对象
+        }
     }
     
     private void transPush() {
@@ -666,7 +674,7 @@ public class Translator {
                 inits.add(0);
             }
             Word globalVal = new Word(def.getName(), inits);
-            val2addr.put(def.getNewVar(), new LabelAddr(globalVal.getLabel()));
+            val2addr.put(def.getDef(), new LabelAddr(globalVal.getLabel()));
             mipsTable.addDirective(globalVal);
             pointer = pointer.getNext();
             while (pointer instanceof middle.instruction.Nop) {

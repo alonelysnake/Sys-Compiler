@@ -1,5 +1,7 @@
 package middle.val;
 
+import middle.instruction.Return;
+
 import java.util.Objects;
 
 public abstract class Value {
@@ -15,7 +17,13 @@ public abstract class Value {
     }
     
     public boolean isGlobal() {
+        if (this instanceof Number) {
+            return false;
+        }
         if (isTemp()) {
+            return false;
+        }
+        if (this.name.equals(Return.RET_REG)) {
             return false;
         }
         return name.split("#")[1].equals("0");

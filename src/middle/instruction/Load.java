@@ -1,11 +1,15 @@
 package middle.instruction;
 
+import middle.optimizer.UseNode;
 import middle.val.Address;
 import middle.val.Value;
 
-public class Load extends INode implements StackSpace {
+import java.util.ArrayList;
+import java.util.Collection;
+
+public class Load extends INode implements DefNode, UseNode {
     private final Value dst;//加载到的目标
-    private final Address addr;//要加载的地址
+    private Address addr;//要加载的地址
     
     public Load(Value dst, Address addr) {
         this.dst = dst;
@@ -29,7 +33,19 @@ public class Load extends INode implements StackSpace {
     }
     
     @Override
-    public Value getNewVar() {
+    public ArrayList<Value> getUse() {
+        ArrayList<Value> ret = new ArrayList<>();
+        ret.add(addr);
+        return ret;
+    }
+    
+    @Override
+    public void replaceOperands(ArrayList<Value> ops) {
+        addr = (Address) ops.get(0);
+    }
+    
+    @Override
+    public Value getDef() {
         return dst;
     }
     

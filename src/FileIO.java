@@ -2,6 +2,7 @@ import backend.instruction.MIPSCode;
 import error.Error;
 import error.ErrorTable;
 import lexer.token.Token;
+import middle.LabelTable;
 import middle.instruction.INode;
 import syntax.CompUnit;
 
@@ -10,6 +11,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class FileIO {
@@ -67,10 +69,16 @@ public class FileIO {
         }
     }
     
-    public static void writeIR(String filepath, INode first) {
+    public static void writeIR(String filepath, INode first, LabelTable labelTable) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(filepath));
             while (first != null) {
+                ArrayList<String> labels = labelTable.getLabels(first);
+                if (labels != null) {
+                    for (String l : labels) {
+                        bw.write(l + ":\n");
+                    }
+                }
                 bw.write(first.toString());
                 bw.write("\n");
                 first = first.getNext();

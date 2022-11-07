@@ -1,10 +1,14 @@
 package middle.instruction;
 
+import middle.optimizer.UseNode;
+import middle.val.Number;
 import middle.val.Value;
 
-public class Move extends INode implements StackSpace {
+import java.util.ArrayList;
+
+public class Move extends INode implements DefNode, UseNode {
     private final Value lVal;
-    private final Value rVal;
+    private Value rVal;
     
     public Move(Value lVal, Value rVal) {
         this.lVal = lVal;
@@ -28,8 +32,22 @@ public class Move extends INode implements StackSpace {
     }
     
     @Override
-    public Value getNewVar() {
+    public Value getDef() {
         return lVal;
+    }
+    
+    @Override
+    public ArrayList<Value> getUse() {
+        ArrayList<Value> ret = new ArrayList<>();
+        ret.add(rVal);
+        return ret;
+    }
+    
+    @Override
+    public void replaceOperands(ArrayList<Value> ops) {
+        if (!(rVal instanceof Number)) {
+            rVal = ops.get(0);
+        }
     }
     
     @Override

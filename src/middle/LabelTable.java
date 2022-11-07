@@ -48,6 +48,21 @@ public class LabelTable {
         this.iNode2Label.get(target).add(label);//TODO 是否有插入位置要求?
     }
     
+    public void reconnect(INode oldTarget, INode newTarget) {
+        if (iNode2Label.containsKey(oldTarget)) {
+            ArrayList<String> labels = iNode2Label.get(oldTarget);
+            if (!iNode2Label.containsKey(newTarget)) {
+                iNode2Label.put(newTarget, new ArrayList<>());
+            }
+            if (labels == null) {
+                return;
+            }
+            iNode2Label.get(newTarget).addAll(labels);
+            iNode2Label.remove(oldTarget);
+            labels.forEach(label -> label2INode.replace(label, newTarget));
+        }
+    }
+    
     public void removeLabel(String label) {
         //删除多余label
         INode node = label2INode.get(label);

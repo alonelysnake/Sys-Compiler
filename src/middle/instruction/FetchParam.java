@@ -1,11 +1,14 @@
 package middle.instruction;
 
+import middle.optimizer.UseNode;
 import middle.val.Address;
 import middle.val.Value;
 import middle.val.Variable;
 
-public class FetchParam extends INode implements StackSpace {
-    private final Value para;//形参名
+import java.util.ArrayList;
+
+public class FetchParam extends INode implements DefNode, UseNode {
+    private Value para;//形参名
     
     public FetchParam(Value para) {
         this.para = para;
@@ -21,8 +24,24 @@ public class FetchParam extends INode implements StackSpace {
     }
     
     @Override
-    public Value getNewVar() {
+    public Value getDef() {
         return para;
+    }
+    
+    @Override
+    public ArrayList<Value> getUse() {
+        ArrayList<Value> ret = new ArrayList<>();
+        ret.add(para);
+        return ret;
+    }
+    
+    @Override
+    public void replaceOperands(ArrayList<Value> ops) {
+        //应该不可达?
+        if (this.para != ops.get(0)) {
+            System.err.println("FetchParam.replaceOperands：形参不应被优化为其他值");
+        }
+        this.para = ops.get(0);
     }
     
     @Override

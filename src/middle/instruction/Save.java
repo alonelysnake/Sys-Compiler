@@ -1,11 +1,14 @@
 package middle.instruction;
 
+import middle.optimizer.UseNode;
 import middle.val.Address;
 import middle.val.Value;
 
-public class Save extends INode {
-    private final Address dst;//写入到的目标
-    private final Value src;//要写入的值
+import java.util.ArrayList;
+
+public class Save extends INode implements UseNode {
+    private Address dst;//写入到的目标
+    private Value src;//要写入的值
     
     public Save(Address dst, Value src) {
         this.dst = dst;
@@ -18,6 +21,20 @@ public class Save extends INode {
     
     public Value getSrc() {
         return src;
+    }
+    
+    @Override
+    public ArrayList<Value> getUse() {
+        ArrayList<Value> ret = new ArrayList<>();
+        ret.add(src);
+        ret.add(dst);
+        return ret;
+    }
+    
+    @Override
+    public void replaceOperands(ArrayList<Value> ops) {
+        src = ops.get(0);
+        dst = (Address) ops.get(1);
     }
     
     @Override

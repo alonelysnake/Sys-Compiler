@@ -1,8 +1,12 @@
 package middle.instruction;
 
+import middle.optimizer.UseNode;
+import middle.val.Number;
 import middle.val.Value;
 
-public class UnaryOp extends INode implements StackSpace {
+import java.util.ArrayList;
+
+public class UnaryOp extends INode implements DefNode, UseNode {
     public enum Operator {
         NEG("-"), NOT("!");
         
@@ -18,7 +22,7 @@ public class UnaryOp extends INode implements StackSpace {
         }
     }
     
-    private final Value src;
+    private Value src;
     private final Operator op;
     private final Value dst;
     
@@ -49,8 +53,39 @@ public class UnaryOp extends INode implements StackSpace {
     }
     
     @Override
-    public Value getNewVar() {
+    public Value getDef() {
         return dst;
+    }
+    
+    @Override
+    public ArrayList<Value> getUse() {
+        ArrayList<Value> ret = new ArrayList<>();
+        ret.add(src);
+        return ret;
+    }
+    
+    @Override
+    public void replaceOperands(ArrayList<Value> ops) {
+        if (!(src instanceof Number)) {
+            src = ops.get(0);
+        }
+    }
+    
+    public INode optimize() {
+        if (src instanceof Number) {
+            if (op.equals(Operator.NEG)) {
+                return new Move(dst, new Number(-((Number) src).getVal()));
+            } else if (op.equals(Operator.NOT)) {
+                if (((Number) src).getVal() == 0) {
+                    return new Move(dst, new Number(1));
+                } else {
+                    return new Move(dst, new Number(0));
+                }
+            } else {
+                System.err.println("unaryOp: optimize 非法符号");
+            }
+        }
+        return this;
     }
     
     @Override

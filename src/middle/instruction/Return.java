@@ -1,12 +1,16 @@
 package middle.instruction;
 
+import middle.optimizer.UseNode;
+import middle.val.Number;
 import middle.val.Value;
 
-public class Return extends INode {
+import java.util.ArrayList;
+
+public class Return extends INode implements UseNode {
     // jr，此外可能会有move v0
     public static final String RET_REG = "$v0";// 在函数调用后固定的寄存器v0
     
-    private final Value ret;//可能有的返回值
+    private Value ret;//可能有的返回值
     
     // 无返回值
     public Return() {
@@ -20,6 +24,22 @@ public class Return extends INode {
     
     public Value getRet() {
         return ret;
+    }
+    
+    @Override
+    public ArrayList<Value> getUse() {
+        ArrayList<Value> ret = new ArrayList<>();
+        if (this.ret != null && !(this.ret instanceof Number)) {
+            ret.add(this.ret);
+        }
+        return ret;
+    }
+    
+    @Override
+    public void replaceOperands(ArrayList<Value> ops) {
+        if (this.ret != null && !(this.ret instanceof Number)) {
+            this.ret = ops.get(0);
+        }
     }
     
     @Override
