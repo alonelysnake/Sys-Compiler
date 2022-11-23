@@ -565,8 +565,8 @@ public class Translator {
     private void transSave() {
         Save save = (Save) pointer;
         ArrayList<Reg> forbids = new ArrayList<>();
-        MIPSUnit val = getMIPSUnit(save.getSrc(), forbids, true);
         MIPSUnit addr = getMIPSUnit(save.getDst(), forbids, true);//TODO 此处为何需要alloc特判?
+        MIPSUnit val = getMIPSUnit(save.getSrc(), forbids, true);// TODO 注意此处顺序不能错，否则可能出现临时变量被替换而没有保存的情况
         if (val instanceof Imm) {
             last = last.insert(new Li(Reg.TMP, (Imm) val));
             last = last.insert(new Sw(Reg.TMP, new RegAddr((Reg) addr, 0)));
@@ -632,8 +632,8 @@ public class Translator {
                 ret = scheduler.possibleFree(pointer, forbids);
                 Value oldVal = scheduler.reg2val(ret);
                 //TODO 还需考虑此处逻辑
-                //对于非数组变量和临时变量，如果被替换时还活跃则需要存入
-                //TODO 对于全局变量，必须存入
+                //对于非数组的局部变量或是任意临时变量，如果被替换时还活跃则需要存入
+                //对于全局变量，必须存入
                 if ((oldVal.isTemp() || oldVal instanceof Variable) && scheduler.isActive(pointer, oldVal)) {
                     last = last.insert(new Sw(ret, val2addr.get(oldVal)));
                 } else if ((oldVal instanceof Variable) && oldVal.isGlobal()) {

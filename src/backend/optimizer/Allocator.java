@@ -163,7 +163,6 @@ public class Allocator extends Optimizer {
     }
     
     public Reg getGlobalReg(Value value) {
-//        return null;
         return val2reg.get(value);
     }
     
