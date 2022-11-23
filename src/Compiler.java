@@ -1,5 +1,7 @@
 import backend.Translator;
+import backend.optimizer.Allocator;
 import backend.schedule.BasicScheduler;
+import backend.schedule.OptimizeScheduler;
 import backend.schedule.Scheduler;
 import error.AnalysisState;
 import lexer.Lexer;
@@ -14,6 +16,7 @@ import syntax.CompUnit;
 import syntax.CompUnitParser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 public class Compiler {
@@ -27,7 +30,7 @@ public class Compiler {
             inputfile = args[1];
             outputFile = args[3];
         } else {
-            inputfile = "./test/2021test/testfiles-only/b/testfile17.txt";
+            inputfile = "./test/2021test/testfiles-only/c/testfile8.txt";
             inputfile = "testfile.txt";
             outputFile = "output.txt";
         }
@@ -48,7 +51,7 @@ public class Compiler {
         if (optimize) {
             info = optimize(info, middleState.getLabelTable());
         }
-        FileIO.writeIR(outputFile,info.getFirst(),middleState.getLabelTable());// 写入中间代码
+        FileIO.writeIR(outputFile, info.getFirst(), middleState.getLabelTable());// 写入中间代码
         Translator translator = new Translator(info.getFirst(), scheduler, middleState.getLabelTable());
         String out = translator.translate();
         FileIO.writeMIPS(mipsFile, out);
@@ -63,8 +66,9 @@ public class Compiler {
         while (!(node instanceof FuncEntry)) {
             node = node.getNext();
         }
+        HashMap<String, Allocator> allocators = new HashMap<>();
         while (node != null) {
-            final INode funcEntry = node;
+            final FuncEntry funcEntry = (FuncEntry) node;
             node = node.getNext();
             INode begin = node;
             INode end = node;
@@ -81,9 +85,12 @@ public class Compiler {
                 change = optimizer.isChanged();
                 last = block.getLast();
             }
+            Allocator allocator = new Allocator(block, labelTable);
+            allocator.optimize();
+            allocators.put(funcEntry.getLabel(), allocator);
             //TODO 极端情况：为空的函数?
-            //TODO reg allocator
         }
+        scheduler = new OptimizeScheduler(allocators);
         return new BlockInfo(null, first, last);
     }
 }

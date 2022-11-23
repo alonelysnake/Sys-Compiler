@@ -60,7 +60,7 @@ public class Translator {
     private final MIPSLabelTable mipsTable = new MIPSLabelTable();
     private final LabelTable labelTable;
     private final HashMap<Value, Address> val2addr = new HashMap<>();
-    private final ArrayList<Value> pointers = new ArrayList<>();
+    private final ArrayList<Value> pointers = new ArrayList<>();//函数形参
     private int fpSize = 0;
     private int pushNum = 0;// push时的参数个数，翻译完函数调用语句后清零。
     private int strNum = 0;// 字符串个数
@@ -78,7 +78,7 @@ public class Translator {
         globalInit();
         //.text处理
         while (pointer != null) {
-//            last = last.insert(new MiddleComment(pointer));
+            last = last.insert(new MiddleComment(pointer));
             final MIPSCode lastLast = last;// 上一个中间指令的最后一条mips指令
             //TODO 跳转指令需要保存寄存器的值，否则对于循环会出现反复加载而没有存入、或是在未进入的分支加载而此分支未加载的情况
             //TODO 被跳转到的指令（有标签的）是否需要设置保存?
@@ -130,8 +130,8 @@ public class Translator {
             //TODO 为避免跳转导致寄存器分配失败，因此对于下一条中间代码是label指向的指令的需要适当写入
             //可参考jumpClear函数
             ArrayList<String> labels = labelTable.getLabels(pointer.getNext());
-            if (labels != null) {
-                HashMap<Reg, Value> context = new HashMap<>(scheduler.getCurrentContext());
+            if (labels != null && !labels.isEmpty()) {
+                HashMap<Reg, Value> context = new HashMap<>(scheduler.getCurrentContext(pointer));
                 for (Reg reg : context.keySet()) {
                     Value val = context.get(reg);
                     Address addr = val2addr.get(val);
@@ -222,6 +222,7 @@ public class Translator {
                 last = last.insert(binaryCode);
             }
         }
+        //TODO 伪指令优化
     }
     
     private void transBranch() {
@@ -266,41 +267,75 @@ public class Translator {
         //每次调用函数前先初始化push计数器
         pushNum = 0;
         //保存当前上下文
-        HashMap<Reg, Value> curContext = scheduler.getCurrentContext();
+        HashMap<Reg, Value> curContext = scheduler.getCurrentContext(pointer);
         for (Reg reg : curContext.keySet()) {
             Value val = scheduler.reg2val(reg);
             //TODO 判断是否要存回去的条件?
+            //如果val的值是地址型，则val为活跃temp时回存（非temp为形参指针，值不会变）
             if (val instanceof Variable) {
                 if (scheduler.isActive(pointer, val) || val.isGlobal()) {
                     last = last.insert(new Sw(reg, val2addr.get(val)));
                 }
-            } else if (val.isTemp()) {
-                //如果变量是临时的，则一定作为左值出现过，在栈中有地址
-                //TODO 如果此时在函数中，如何处理形参指针? 按照文法规定形参不能被赋值，故无需存储
+            } else if (val.isTemp() && scheduler.isActive(pointer, val)) {
+                //地址型变量，非临时变量说明是局部数组或全局变量label，均为常值不用回存
                 last = last.insert(new Sw(reg, val2addr.get(val)));
             }
         }
+        //未优化时的操作
+//        for (Reg reg : curContext.keySet()) {
+//            Value val = scheduler.reg2val(reg);
+//            //TODO 判断是否要存回去的条件?
+//            //如果val的值是地址型，则val为活跃temp时回存（非temp为形参指针，值不会变）
+//            if (val instanceof Variable) {
+//                if (scheduler.isActive(pointer, val) && scheduler.isGlobal(reg) || val.isGlobal()) {
+//                    last = last.insert(new Sw(reg, val2addr.get(val)));
+//                }
+//            } else if (val.isTemp()) {
+//                //如果变量是临时的，则一定作为左值出现过，在栈中有地址
+//                //TODO 如果此时在函数中，如何处理形参指针? 按照文法规定形参不能被赋值，故无需存储
+//                last = last.insert(new Sw(reg, val2addr.get(val)));
+//            }
+//        }
         //ra一定要存
         last = last.insert(new Sw(Reg.RET_ADDR, new RegAddr(Reg.SP, 0)));// sw $ra, 0($sp)
-        last = last.insert(new Jal("func_" + ((Call) pointer).getLabel()));// jal func，用func_避免和其他标签重名
+        last = last.insert(new Jal(((Call) pointer).getLabel()));// jal func，用func_避免和其他标签重名
         last = last.insert(new Lw(Reg.RET_ADDR, new RegAddr(Reg.SP, 0)));// lw $ra, 0($sp)
         // TODO 是否要恢复上下文?
         for (Reg reg : curContext.keySet()) {
             Value val = scheduler.reg2val(reg);
-            //TODO 判断是否要读回来的条件?
+            //TODO 所有active的理论上都应该恢复
             if (val instanceof Variable) {
                 if (scheduler.isActive(pointer, val) || val.isGlobal()) {
                     last = last.insert(new Lw(reg, val2addr.get(val)));
                 }
             } else {
-                if (val.isTemp() || pointers.contains(val)) {
-                    //除了临时变量外，指针也需要读入
-                    last = last.insert(new Lw(reg, val2addr.get(val)));
-                } else {
-                    last = last.insert(new La(reg, val2addr.get(val)));
+                if (scheduler.isActive(pointer, val)) {
+                    if (val.isTemp() || pointers.contains(val)) {
+                        //除了临时变量外，指针也需要读入
+                        last = last.insert(new Lw(reg, val2addr.get(val)));
+                    } else {
+                        last = last.insert(new La(reg, val2addr.get(val)));
+                    }
                 }
             }
         }
+        // 未优化时的操作
+//        for (Reg reg : curContext.keySet()) {
+//            Value val = scheduler.reg2val(reg);
+//            //TODO 判断是否要读回来的条件?
+//            if (val instanceof Variable) {
+//                if (scheduler.isActive(pointer, val) || val.isGlobal()) {
+//                    last = last.insert(new Lw(reg, val2addr.get(val)));
+//                }
+//            } else {
+//                if (val.isTemp() || pointers.contains(val)) {
+//                    //除了临时变量外，指针也需要读入
+//                    last = last.insert(new Lw(reg, val2addr.get(val)));
+//                } else {
+//                    last = last.insert(new La(reg, val2addr.get(val)));
+//                }
+//            }
+//        }
     }
     
     private void transDef() {
@@ -310,7 +345,7 @@ public class Translator {
         final MIPSCode lastCode = last;
         if (defVar instanceof Variable) {
             //不是数组
-            //TODO 如果是常量，可考虑优化，中间代码时直接变成数带入，不需要存储
+            // 如果是常量，中间代码时直接变成数带入，不需要存储
             ArrayList<Value> initVals = def.getInitVals();
             if (!initVals.isEmpty()) {
                 //没有进行初值赋值时不需要任何操作
@@ -324,6 +359,7 @@ public class Translator {
                     last = last.insert(new Move((Reg) left, (Reg) right));
                 }
             }
+            //不允许只声明但未定义的变量作为右值，因此在use前一定有一次def，代码优化后不会出现“在分支一定义，分支二使用”导致的未导入但编译器以为在寄存器堆中情况。
         } else {
             RegAddr addr = (RegAddr) val2addr.get(defVar);
             ArrayList<Value> initVals = def.getInitVals();
@@ -341,7 +377,8 @@ public class Translator {
                     }
                 }
             }
-            //TODO 是否要把定义的变量读入寄存器?
+            //将数组基地址读入寄存器 代码优化后可能出现“在分支一定义，分支二使用”导致的未导入但编译器以为在寄存器堆中情况。
+            getMIPSUnit(defVar, new ArrayList<>(), true);
         }
         if (lastCode == last) {
             last = last.insert(new Nop());// 标签的挂载对象
@@ -354,9 +391,11 @@ public class Translator {
     }
     
     private void transFetch() {
-        //TODO
-        // 是否需要加载到寄存器里?
+        //TODO 加载参数到寄存器，此处会造成函数调用其他函数时参数的堆积与反复 lw sw，考虑scheduler的globalLoad保存策略？
+        // 若使用def use 进行分析，则需要把绑定全局寄存器的变量加载到寄存器里
         pointers.add(((FetchParam) pointer).getPara());
+        FetchParam fetch = (FetchParam) pointer;
+        getMIPSUnit(fetch.getPara(), new ArrayList<>(), true);
     }
     
     private void transEntry() {
@@ -374,9 +413,9 @@ public class Translator {
         the last var
         -------------------------------------------- <-- new sp
          */
-        pointers.clear();
-        scheduler.clear();
         FuncEntry entry = (FuncEntry) pointer;
+        pointers.clear();
+        scheduler.funcCall(entry.getLabel());
         INode tmp = entry.getNext();
         fpSize = 4;
         //计算栈帧大小
@@ -406,7 +445,7 @@ public class Translator {
             vars.pop();
             sizes.pop();
         }
-        mipsTable.connect("func_" + entry.getLabel(), last);
+        mipsTable.connect(entry.getLabel(), last);
     }
     
     private void transInput() {
@@ -541,7 +580,7 @@ public class Translator {
         UnaryOp.Operator op = unary.getOp();
         ArrayList<Reg> forbids = new ArrayList<>();
         MIPSUnit src = getMIPSUnit(unary.getSrc(), forbids, true);
-        MIPSUnit dst = getMIPSUnit(unary.getDst(), forbids, true);
+        MIPSUnit dst = getMIPSUnit(unary.getDst(), forbids, false);
         if (src instanceof Imm) {
             switch (op) {
                 case NEG:
@@ -574,7 +613,7 @@ public class Translator {
      * @return
      */
     private MIPSUnit getMIPSUnit(Value val, ArrayList<Reg> forbids, boolean load) {
-        //TODO 得到mips里的运算数，可以是寄存器或立即数
+        // 得到mips里的运算数，可以是寄存器或立即数
         // 立即数直接返回即可
         if (val instanceof Number) {
             return new Imm(((Number) val).getVal());
@@ -590,10 +629,14 @@ public class Translator {
             ret = scheduler.alloc(val);
             if (ret == null) {
                 //所有寄存器都已满
-                ret = scheduler.possibleFree(forbids);
+                ret = scheduler.possibleFree(pointer, forbids);
                 Value oldVal = scheduler.reg2val(ret);
+                //TODO 还需考虑此处逻辑
                 //对于非数组变量和临时变量，如果被替换时还活跃则需要存入
+                //TODO 对于全局变量，必须存入
                 if ((oldVal.isTemp() || oldVal instanceof Variable) && scheduler.isActive(pointer, oldVal)) {
+                    last = last.insert(new Sw(ret, val2addr.get(oldVal)));
+                } else if ((oldVal instanceof Variable) && oldVal.isGlobal()) {
                     last = last.insert(new Sw(ret, val2addr.get(oldVal)));
                 }
                 scheduler.replace(ret, val);
@@ -631,7 +674,7 @@ public class Translator {
      * 当遇到beq、jr、j指令时，要根据此时寄存器的分配情况将寄存器的值存回内存栈，以及释放不必要的寄存器
      */
     private void jumpClear() {
-        HashMap<Reg, Value> context = new HashMap<>(scheduler.getCurrentContext());
+        HashMap<Reg, Value> context = new HashMap<>(scheduler.getCurrentContext(pointer));
         for (Reg reg : context.keySet()) {
             Value val = context.get(reg);
             Address addr = val2addr.get(val);

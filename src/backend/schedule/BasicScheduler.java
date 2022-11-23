@@ -38,7 +38,7 @@ public class BasicScheduler implements Scheduler {
     }
     
     @Override
-    public Reg possibleFree(ArrayList<Reg> forbids) {
+    public Reg possibleFree(INode node, ArrayList<Reg> forbids) {
         for (Reg reg : uses) {
             if (!forbids.contains(reg)) {
                 return reg;
@@ -49,10 +49,11 @@ public class BasicScheduler implements Scheduler {
     
     @Override
     public Value replace(Reg reg, Value value) {
+        Value oldVal = cur.get(reg);
         cur.replace(reg, value);
         uses.remove(reg);
         uses.addLast(reg);
-        return null;
+        return oldVal;
     }
     
     @Override
@@ -80,8 +81,13 @@ public class BasicScheduler implements Scheduler {
     }
     
     @Override
-    public HashMap<Reg, Value> getCurrentContext() {
+    public HashMap<Reg, Value> getCurrentContext(INode node) {
         return cur;
+    }
+    
+    @Override
+    public void funcCall(String newFunc) {
+        clear();
     }
     
     @Override

@@ -103,7 +103,7 @@ public class FuncCall implements ExpUnit {
             first = new Nop();
             last = first;
         }
-        INode call = new Call(name.getName());
+        INode call = new Call("func_"+name.getName());
         last = last.insert(call);
         // TODO 表达式里有多个函数时需要 t1 = v0，只有单个时是否可以化简?
         Variable tmpVar = new Variable(String.valueOf(MiddleState.tmpCnt++));

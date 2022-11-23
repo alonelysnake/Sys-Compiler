@@ -44,7 +44,7 @@ public class CompUnit implements SyntaxNode {
             last = last.insert(declLine.getFirst());
         }
         //TODO 可以考虑把main函数放到第一个?，省去一次函数调用（但忽略主函数返回值）
-        last = last.insert(new Call("main"));//main函数入口
+        last = last.insert(new Call("func_main"));//main函数入口
         last = last.insert(new Exit());//程序退出标志（main函数运行结束返回此处）
         for (FuncDef func : this.funcs) {
             BlockInfo funcBlock = func.generateIcode(state);

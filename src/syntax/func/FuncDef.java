@@ -97,8 +97,8 @@ public class FuncDef implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        INode first = new FuncEntry(name.getName(), getParaNum());
-        state.getLabelTable().connect(name.getName(), first);
+        INode first = new FuncEntry("func_" + name.getName(), getParaNum());
+        state.getLabelTable().connect("func_" + name.getName(), first);
         INode last = first;
         state.funcCreateSymTable();
         if (params != null) {

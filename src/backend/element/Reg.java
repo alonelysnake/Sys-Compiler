@@ -1,5 +1,7 @@
 package backend.element;
 
+import java.util.HashSet;
+
 public enum Reg implements MIPSUnit {
     ZERO("0"),
     RET_VAL("v0"),
@@ -48,8 +50,23 @@ public enum Reg implements MIPSUnit {
         return "$" + name;
     }
     
-    public boolean needSave() {
-        //TODO
-        return true;
-    }
+    public static final HashSet<Reg> GLOBAL_HEAP = new HashSet<Reg>() {
+        {
+            add(Reg.S0);
+            add(Reg.S1);
+            add(Reg.S2);
+            add(Reg.S3);
+            add(Reg.S4);
+            add(Reg.S5);
+            add(Reg.S6);
+            add(Reg.S7);
+            add(Reg.S8);
+            add(Reg.S9);
+            add(Reg.S10);
+            add(Reg.S11);
+            add(Reg.S12);
+            add(Reg.S13);
+            add(Reg.S14);
+        }
+    };
 }

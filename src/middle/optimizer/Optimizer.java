@@ -28,17 +28,17 @@ public class Optimizer {
     private INode lastINode;
     private LabelTable labelTable;
     // 基本块链表
-    private BasicBlock firstBlock;
-    private BasicBlock lastBlock;
+    protected BasicBlock firstBlock;
+    protected BasicBlock lastBlock;
     
-    private final FlowGraph flowGraph = new FlowGraph();
+    protected final FlowGraph flowGraph = new FlowGraph();
     //活跃变量分析用，计算每个基本块内的活跃变量
-    private final HashMap<BasicBlock, HashSet<Value>> defs = new HashMap<>();
-    private final HashMap<BasicBlock, HashSet<Value>> uses = new HashMap<>();
-    private final HashMap<BasicBlock, HashSet<Value>> activeVarIn = new HashMap<>();
-    private final HashMap<BasicBlock, HashSet<Value>> activeVarOut = new HashMap<>();
+    protected final HashMap<BasicBlock, HashSet<Value>> defs = new HashMap<>();
+    protected final HashMap<BasicBlock, HashSet<Value>> uses = new HashMap<>();
+    protected final HashMap<BasicBlock, HashSet<Value>> activeVarIn = new HashMap<>();
+    protected final HashMap<BasicBlock, HashSet<Value>> activeVarOut = new HashMap<>();
     
-    private final HashMap<Value, HashSet<INode>> varDefNode = new HashMap<>();//在活跃变量分析中生成，在到达定义分析中使用，表示定义某变量的所有语句
+    protected final HashMap<Value, HashSet<INode>> varDefNode = new HashMap<>();//在活跃变量分析中生成，在到达定义分析中使用，表示定义某变量的所有语句
     //到达定义分析用，计算每个基本块内的中间代码
     private final HashMap<BasicBlock, HashSet<INode>> gens = new HashMap<>();
     private final HashMap<BasicBlock, HashSet<INode>> kills = new HashMap<>();
@@ -58,8 +58,14 @@ public class Optimizer {
         branchJumpOptimize();
         constOptimize();
         
+        analyze();
+        // 变量传播优化
+        spreadOptimize();
+        return new BlockInfo(null, firstBlock.getFirst(), lastBlock.getLast());
+    }
+    
+    protected void analyze() {
         // 创建流图 flowGraph，设置入口与出口 inBlock outBlock
-        BasicBlock.cnt = 0;
         createFLowGraph();
         // 活跃变量分析
         calDefUse();
@@ -67,9 +73,6 @@ public class Optimizer {
         // 到达定义分析
         calGenKill();
         calReachDefInOut();
-        // 变量传播优化
-        spreadOptimize();
-        return new BlockInfo(null, firstBlock.getFirst(), lastBlock.getLast());
     }
     
     /**
@@ -151,7 +154,7 @@ public class Optimizer {
     }
     
     //活跃变量 def use 初始化
-    private void calDefUse() {
+    protected void calDefUse() {
         BasicBlock block = firstBlock;
         while (block != null) {
             HashSet<Value> newDefs = new HashSet<>();
@@ -163,14 +166,12 @@ public class Optimizer {
                 if (code instanceof DefNode) {
                     Value def = ((DefNode) code).getDef();
                     newDefs.add(def);
-                    //TODO activeDefOfICode 是什么?
                     if (!varDefNode.containsKey(def)) {
                         varDefNode.put(def, new HashSet<>());
                     }
                     varDefNode.get(def).add(code);
                 }
                 if (code instanceof UseNode) {
-                    //TODO fetch是否应该算作use?
                     ArrayList<Value> use = ((UseNode) code).getUse();
                     use.forEach(value -> {
                         if (!(value instanceof Number)) newUses.add(value);
@@ -187,9 +188,6 @@ public class Optimizer {
             activeVarIn.put(block, new HashSet<>(newUses));// 同时初始化in out集
             activeVarOut.put(block, new HashSet<>());
 
-//            if (block == lastBlock) {
-//                break;
-//            }
             block = block.getNext();
         }
     }
@@ -201,7 +199,6 @@ public class Optimizer {
             changeFlag = false;
             BasicBlock block = lastBlock;//从后向前遍历（基于后继）
             while (block != null) {
-                //TODO 是否存在第一个block的prev不为空?
                 HashSet<Value> out = activeVarOut.get(block);
                 int beforeOutSize = out.size();
                 for (BasicBlock follow : flowGraph.getNext(block)) {
@@ -260,7 +257,6 @@ public class Optimizer {
         while (changeFlag) {
             changeFlag = false;
             BasicBlock block = firstBlock;
-            //TODO 是否保证最后一个后面是null?
             while (block != null) {
                 HashSet<INode> in = reachDefIn.get(block);
                 int beforeInSize = in.size();
@@ -306,7 +302,7 @@ public class Optimizer {
                         //oldVal是待替换的右值，可能是另一个单赋值表达式（如move）中的左值
                         if (oldVal instanceof Number || oldVal.isGlobal()) {
                             //如果是常数，则一定不会发生替换
-                            //TODO 修正ycr的错误，如果是全局变量，则不能发生替换，因为不知道oldVal是否通过函数调用在其他函数中变成了别的值
+                            //TODO 如果是全局变量，则不能发生替换，因为不知道oldVal是否通过函数调用在其他函数中变成了别的值
                             newUse.add(oldVal);
                             continue;
                         }

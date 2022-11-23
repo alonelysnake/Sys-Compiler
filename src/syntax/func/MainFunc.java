@@ -38,8 +38,8 @@ public class MainFunc implements SyntaxNode {
     
     @Override
     public BlockInfo generateIcode(MiddleState state) {
-        INode first = new FuncEntry("main", 0);
-        state.getLabelTable().connect("main", first);
+        INode first = new FuncEntry("func_main", 0);
+        state.getLabelTable().connect("func_main", first);
         INode last = first;
         
         state.inBlock();
