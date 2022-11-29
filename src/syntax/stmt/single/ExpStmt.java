@@ -1,6 +1,8 @@
 package syntax.stmt.single;
 
 import error.AnalysisState;
+import error.Error;
+import error.ErrorType;
 import lexer.token.Token;
 import middle.BlockInfo;
 import middle.MiddleState;
@@ -17,6 +19,9 @@ public class ExpStmt extends SingleStmt {
     @Override
     public void analyse(AnalysisState state) {
         exp.analyse(state);
+        if (!hasSemicolon()) {
+            state.addError(new Error(exp.getMaxLine(), ErrorType.LACK_SEMICOLON));
+        }
     }
     
     @Override

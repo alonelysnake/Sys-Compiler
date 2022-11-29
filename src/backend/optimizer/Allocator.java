@@ -149,6 +149,7 @@ public class Allocator extends Optimizer {
     
     private Value getRemoveVal() {
         // 得到最适合不分配全局寄存器的变量
+        //TODO 优化
         Set<Value> curVals = conflictMap.getAllNodes();
         int maxGrade = 0;
         Value ret = null;

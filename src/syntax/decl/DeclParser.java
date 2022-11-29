@@ -37,7 +37,7 @@ public class DeclParser extends Parser {
                 semicolon = first;
                 break;
             } else {
-                //TODO 报错
+                //读到其他字符，说明缺失分号
                 previous();
                 System.err.println("constDecl读到其他字符：" + first);
                 break;
@@ -65,7 +65,7 @@ public class DeclParser extends Parser {
                 semicolon = first;
                 break;
             } else {
-                //TODO 报错
+                //读到其他字符，说明缺失分号
                 previous();
                 System.err.println("行：" + first.getLine() + "varDecl读到其他字符：" + first);
                 break;

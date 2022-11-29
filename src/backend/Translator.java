@@ -177,6 +177,7 @@ public class Translator {
         MIPSUnit op1 = getMIPSUnit(code.getOp1(), forbids, true);
         MIPSUnit op2 = getMIPSUnit(code.getOp2(), forbids, true);
         MIPSUnit left = getMIPSUnit(code.getResult(), forbids, false);
+        //TODO 乘除优化
         if (code.getOp1() instanceof middle.val.Address) {
             //左操作数是地址
             if (op2 instanceof Imm) {
