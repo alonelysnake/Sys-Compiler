@@ -16,8 +16,10 @@ import backend.instruction.La;
 import backend.instruction.Li;
 import backend.instruction.Lw;
 import backend.instruction.MIPSCode;
+import backend.instruction.Mfhi;
 import backend.instruction.MiddleComment;
 import backend.instruction.Move;
+import backend.instruction.Mult;
 import backend.instruction.Nop;
 import backend.instruction.RCal;
 import backend.instruction.Sw;
@@ -48,6 +50,7 @@ import middle.val.Number;
 import middle.val.Value;
 import middle.val.Variable;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -179,7 +182,7 @@ public class Translator {
         MIPSUnit left = getMIPSUnit(code.getResult(), forbids, false);
         //TODO 乘除优化
         if (code.getOp1() instanceof middle.val.Address) {
-            //左操作数是地址
+            //左操作数是地址，此处的中间代码不应该出现乘除法，不用考虑乘除优化
             if (op2 instanceof Imm) {
                 op2 = new Imm(((Imm) op2).getVal() * 4);
                 MIPSCode mipsCode = new ICal(ICal.middle2MIPSBinary.get(code.getOp()), (Reg) left, (Reg) op1, (Imm) op2);
@@ -197,9 +200,62 @@ public class Translator {
             //op1是变量
             if (op2 instanceof Imm) {
                 MIPSCode mipsCode;
-//                mipsCode = new ICal(ICal.middle2MIPSBinary.get(code.getOp()), (Reg) left, (Reg) op1, (Imm) op2);
                 int number = ((Imm) op2).getVal();
-                if (ICal.middle2MIPSBinary.get(code.getOp()).equals(ICal.Op.SLTI) && (number > 32767 || number < -32768)) {
+                //TODO 除法优化
+                /*
+                设y = x/d，x>0, d>0
+                令m = 2^t/d
+                改为y = MFHI[x*m] >> t，即用乘法优化除法
+                产生的误差为(x*(d-1)/d)>>t，要保证该值不进入mfhi，故t>=31
+                实际m=m+1才成立，否则整除情况会导致误差累积正好无法满足,如3/3得到0
+                还应满足m在int范围内，为满足d=2^31-1时成立，故将其替换为：1+(2^(31+t))/d-2^32，做完乘法运算后再加上x，去除2^32的误差
+                由此应保证t的值在(31,32)之间，t的值为31+log_2_d向上取整
+                
+                对于x<0的情况，值需要+1
+                对于d<0的情况，需要再取个相反数
+                 */
+                if (code.getOp().equals(BinaryOp.Operator.DIV)) {
+                    if (number == 1) {
+                        mipsCode = new Move((Reg) left, (Reg) op1);
+                    } else if (number == -1) {
+                        mipsCode = new RCal(RCal.Op.SUBU, (Reg) left, Reg.ZERO, (Reg) op1);
+                    } /*else if (Integer.bitCount(number) == 1) {
+                        //理论上不会出现
+                        int pos = 0;
+                        while ((number & (1 << pos)) == 0) {
+                            pos++;
+                        }
+                        mipsCode = new ICal(ICal.Op.SRA, (Reg) left, (Reg) op1, new Imm(number));
+                    } else if (Integer.bitCount(-number) == 1) {
+                        //理论上不会出现
+                        int pos = 0;
+                        while ((-number & (1 << pos)) == 0) {
+                            pos++;
+                        }
+                        mipsCode = new RCal(RCal.Op.SUBU, Reg.TMP, Reg.ZERO, (Reg) op1);
+                        mipsCode.insert(new ICal(ICal.Op.SRA, (Reg) left, Reg.TMP, new Imm(pos)));
+                    } */else {
+                        // 满足t0>=1
+                        int t0 = (int) Math.ceil(Math.log(Math.abs(number)) / Math.log(2));
+                        int t = 31 + t0;
+                        BigInteger ml = BigInteger.ONE
+                                .add(BigInteger.valueOf(2).pow(t).divide(BigInteger.valueOf(Math.abs(number))))
+                                .subtract(BigInteger.valueOf(2).pow(32));
+                        int m = ml.intValue();
+                        mipsCode = new Li(Reg.TMP, new Imm(m));
+                        MIPSCode divCode = new Mult((Reg) (op1), Reg.TMP);
+                        mipsCode.insert(divCode);
+                        //注意此处left可能和op1共用一个寄存器
+                        divCode = divCode.insert(new Mfhi(Reg.TMP));
+                        divCode = divCode.insert(new RCal(RCal.Op.ADDU, Reg.TMP, Reg.TMP, (Reg) op1));
+                        divCode = divCode.insert(new ICal(ICal.Op.SRA, Reg.TMP, Reg.TMP, new Imm(t0 - 1)));//31+t0和32差1
+                        divCode = divCode.insert(new RCal(RCal.Op.SLT, (Reg) left, (Reg) op1, Reg.ZERO));
+                        divCode = divCode.insert(new RCal(RCal.Op.ADDU, (Reg) left, (Reg) left, Reg.TMP));
+                        if (number < 0) {
+                            divCode = divCode.insert(new RCal(RCal.Op.SUBU, (Reg) left, Reg.ZERO, (Reg) left));
+                        }
+                    }
+                } else if (ICal.middle2MIPSBinary.get(code.getOp()).equals(ICal.Op.SLTI) && (number > 32767 || number < -32768)) {
                     last = last.insert(new Li(Reg.TMP, ((Imm) op2)));
                     mipsCode = new RCal(RCal.Op.SLT, (Reg) left, (Reg) op1, Reg.TMP);
                 } else {
@@ -213,10 +269,12 @@ public class Translator {
         } else {
             //op1是立即数
             if (op2 instanceof Imm) {
+                //op2也是立即数，优化后不应该出现这种情况
                 int res = BinaryOp.calConst(code);
                 MIPSCode mipsCode = new Li((Reg) left, new Imm(res));
                 last = last.insert(mipsCode);
             } else {
+                //TODO addiu不用li
                 MIPSCode move = new Li(Reg.TMP, (Imm) op1);
                 MIPSCode binaryCode = new RCal(RCal.middle2MIPSBinary.get(code.getOp()), (Reg) left, Reg.TMP, (Reg) op2);
                 last = last.insert(move);

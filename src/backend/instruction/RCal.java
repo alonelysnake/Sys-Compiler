@@ -6,10 +6,10 @@ import middle.instruction.BinaryOp;
 import java.util.HashMap;
 
 public class RCal extends MIPSCode {
-    //R类型计算指令，包括addu subu mul div rem(余数) and or sgt sge slt sle seq sne sll
+    //R类型计算指令，包括addu subu mul div rem(余数) and or sgt sge slt sle seq sne
     
     public enum Op {
-        ADDU, SUBU, MUL, DIV, REM, AND, OR, SGT, SGE, SLT, SLE, SEQ, SNE, SLL;
+        ADDU, SUBU, MUL, DIV, REM, AND, OR, SGT, SGE, SLT, SLE, SEQ, SNE;
         
         @Override
         public String toString() {
@@ -32,7 +32,6 @@ public class RCal extends MIPSCode {
             put(BinaryOp.Operator.LE, Op.SLE);
             put(BinaryOp.Operator.EQ, Op.SEQ);
             put(BinaryOp.Operator.NEQ, Op.SNE);
-            put(BinaryOp.Operator.SLL, Op.SLL);
         }
     };
     

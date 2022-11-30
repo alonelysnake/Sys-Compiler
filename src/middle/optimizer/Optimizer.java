@@ -187,7 +187,7 @@ public class Optimizer {
             uses.put(block, newUses);
             activeVarIn.put(block, new HashSet<>(newUses));// 同时初始化in out集
             activeVarOut.put(block, new HashSet<>());
-
+            
             block = block.getNext();
         }
     }
@@ -321,7 +321,10 @@ public class Optimizer {
                                     !searchDef((INode) defNode, node, newVal, new HashSet<>())) {
                                 // 返回值不能简化掉（无法判断v0什么时候被syscall赋值），全局量不确定是否在中间的函数调用中被赋值（ycr的bug）
                                 newUse.add(newVal);
-                                changed = true;
+                                if (!oldVal.equals(newVal)) {
+                                    //TODO 形参会导致出现类似 a = a的情况?
+                                    changed = true;
+                                }
                             } else {
                                 newUse.add(oldVal);
                             }
@@ -430,6 +433,7 @@ public class Optimizer {
                         }
                         if (!def.isGlobal() && !used) {
                             node = replaceWithNop(block, node);
+//                            changed = true;
                             if (node == block.getLast()) {
                                 break;
                             }
@@ -489,6 +493,7 @@ public class Optimizer {
                 node = node.getNext();
                 labelTable.reconnect(cur, node);
                 cur.remove();
+//                changed = true;
                 if (cur == last) {
                     break;
                 }
@@ -550,6 +555,7 @@ public class Optimizer {
             }
             // 发生代码替换
             if (oldNode != node) {
+                changed = true;
                 node = oldNode.replace(node);
                 labelTable.reconnect(oldNode, node);
                 if (oldNode == firstINode) {

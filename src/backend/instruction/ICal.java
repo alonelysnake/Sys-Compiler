@@ -10,7 +10,7 @@ public class ICal extends MIPSCode {
     // I类型计算指令，包括 addiu subiu mul div rem andi ori sgt sge slti sle seq sne sll
     
     public enum Op {
-        ADDIU, SUBIU, MUL, DIV, REM, ANDI, ORI, SGT, SGE, SLTI, SLE, SEQ, SNE, SLL;
+        ADDIU, SUBIU, MUL, DIV, REM, ANDI, ORI, SGT, SGE, SLTI, SLE, SEQ, SNE, SLL, SRA, XORI;
         
         @Override
         public String toString() {
@@ -34,6 +34,7 @@ public class ICal extends MIPSCode {
             put(BinaryOp.Operator.EQ, Op.SEQ);
             put(BinaryOp.Operator.NEQ, Op.SNE);
             put(BinaryOp.Operator.SLL, Op.SLL);
+            put(BinaryOp.Operator.SRA, Op.SRA);
         }
     };
     

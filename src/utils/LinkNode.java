@@ -33,6 +33,13 @@ public abstract class LinkNode<T extends LinkNode<T>> {
     @SuppressWarnings("unchecked")
     //把node插入到该节点之后，返回node原本的的尾节点
     public T insert(T node) {
+        /*
+        p->p->p->p
+              ^------------this, insert q1->q2->q3 after this
+        result:
+        p->p->p->q1->q2->q3->p
+                          ^------------------return position
+         */
         //要求 node != null
         T next = this.next;
         node.setPrev((T) this);// 保证所有节点都继承了本类
@@ -57,16 +64,8 @@ public abstract class LinkNode<T extends LinkNode<T>> {
         p->p->q1->q2->q3->p
                        ^------------------return position
          */
-        /*T p = node;
-        while (p.getNext() != null) {
-            p = p.getNext();
-        }*/
         T p = this.insert(node);
         this.remove();
-        /*prev.insert(node);
-        if (next != null) {
-            p.insert(next);
-        }*/
         return p;
     }
     
