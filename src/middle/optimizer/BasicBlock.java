@@ -40,12 +40,12 @@ public class BasicBlock extends LinkNode<BasicBlock> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BasicBlock block = (BasicBlock) o;
-        return Objects.equals(first, block.first) && Objects.equals(last, block.last);
+        return index == block.index && Objects.equals(first, block.first) && Objects.equals(last, block.last);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(first, last);
+        return Objects.hash(index);
     }
     
     public String getName() {

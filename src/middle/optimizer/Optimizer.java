@@ -163,19 +163,21 @@ public class Optimizer {
             INode code = block.getFirst();
             final INode lastCode = block.getLast();
             while (code != null) {
+                if (code instanceof UseNode) {
+                    ArrayList<Value> use = ((UseNode) code).getUse();
+                    use.forEach(value -> {
+                        if (!(value instanceof Number) && !newDefs.contains(value)) newUses.add(value);
+                    });
+                }
                 if (code instanceof DefNode) {
                     Value def = ((DefNode) code).getDef();
-                    newDefs.add(def);
+                    if (!newUses.contains(def)) {
+                        newDefs.add(def);
+                    }
                     if (!varDefNode.containsKey(def)) {
                         varDefNode.put(def, new HashSet<>());
                     }
                     varDefNode.get(def).add(code);
-                }
-                if (code instanceof UseNode) {
-                    ArrayList<Value> use = ((UseNode) code).getUse();
-                    use.forEach(value -> {
-                        if (!(value instanceof Number)) newUses.add(value);
-                    });
                 }
                 if (code == lastCode) {
                     break;
@@ -424,16 +426,42 @@ public class Optimizer {
                         //只有是DefNode 的节点会因为 传播 而消除
                         boolean used = false;
                         Value def = ((DefNode) node).getDef();
-                        //遍历所有基本块的use集判断是否出现过
-                        for (HashSet<Value> vals : uses.values()) {
-                            if (vals.contains(def)) {
-                                used = true;
-                                break;
+                        //TODO 应该是遍历本基本块的out和后续的UseNode判断是否出现过
+                        if (activeVarOut.get(block).contains(def)) {
+                            used = true;
+                        }
+                        if (node != block.getLast()) {
+                            INode node1 = node.getNext();
+                            while (node1 != null) {
+                                if (node1 instanceof UseNode) {
+                                    if (((UseNode) node1).getUse().contains(def)) {
+                                        used = true;
+                                        break;
+                                    }
+                                }
+                                if (node1 == block.getLast()) {
+                                    break;
+                                }
+                                node1 = node1.getNext();
                             }
                         }
+                        // 对于局部变量，如果used为false，说明在某个基本块中只做了声明（或初始的定义值没有用，可以全部移除）
+                        if (node instanceof Definition && !used) {
+                            used = true;
+                            ArrayList<Value> initVals = ((Definition) node).getInitVals();
+                            if (!initVals.isEmpty()) {
+                                initVals.clear();
+                                changed = true;
+                            }
+                        }
+                        // 形参必须留出位置
+                        if (node instanceof FetchParam) {
+                            used = true;
+                        }
+                        
                         if (!def.isGlobal() && !used) {
                             node = replaceWithNop(block, node);
-//                            changed = true;
+                            changed = true;
                             if (node == block.getLast()) {
                                 break;
                             }
@@ -556,8 +584,9 @@ public class Optimizer {
             // 发生代码替换
             if (oldNode != node) {
                 changed = true;
-                node = oldNode.replace(node);
+                //需要先关联再替换，node可能是一串，如果先替换再关联会把label关联到node的最后一个指令
                 labelTable.reconnect(oldNode, node);
+                node = oldNode.replace(node);
                 if (oldNode == firstINode) {
                     firstINode = node;
                 }
