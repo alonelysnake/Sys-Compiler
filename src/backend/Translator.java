@@ -81,7 +81,7 @@ public class Translator {
         globalInit();
         //.text处理
         while (pointer != null) {
-            last = last.insert(new MiddleComment(pointer));
+//            last = last.insert(new MiddleComment(pointer));
             final MIPSCode lastLast = last;// 上一个中间指令的最后一条mips指令
             //TODO 跳转指令需要保存寄存器的值，否则对于循环会出现反复加载而没有存入、或是在未进入的分支加载而此分支未加载的情况
             //TODO 被跳转到的指令（有标签的）是否需要设置保存?
