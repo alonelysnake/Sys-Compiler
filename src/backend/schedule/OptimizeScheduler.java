@@ -14,8 +14,8 @@ public class OptimizeScheduler implements Scheduler {
     //使用着色图优化后的寄存器分配策略
     private final HashMap<String, Allocator> funcAllocators;//函数名func_xxx-函数的分配器
     private final LinkedList<Reg> tempFrees = new LinkedList<>(Arrays.asList(
-            Reg.T0, Reg.T1, Reg.T2/*, Reg.T3, Reg.T4,
-            Reg.T5, Reg.T6, Reg.T7, Reg.T8, Reg.T9*/));
+            Reg.T0, Reg.T1, Reg.T2, Reg.T3, Reg.T4,
+            Reg.T5, Reg.T6, Reg.T7, Reg.T8, Reg.T9));
     private final LinkedList<Reg> tempUses = new LinkedList<>();
     private final HashMap<Reg, Value> cur = new HashMap<>();
     private String curFunc;
